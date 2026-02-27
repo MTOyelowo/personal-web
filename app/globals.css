@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   --background: #ffffff;
@@ -10,6 +11,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-space-grotesk: var(--font-space-grotesk);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +25,74 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Tiptap Editor Styles ── */
+.tiptap-editor {
+  line-height: 1.75;
+}
+
+.tiptap-editor p {
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-editor h1 {
+  font-size: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-editor h2 {
+  font-size: 1.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap-editor h3 {
+  font-size: 1.25rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap-editor ul,
+.tiptap-editor ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-editor li {
+  margin-bottom: 0.25rem;
+}
+
+.tiptap-editor li p {
+  margin-bottom: 0;
+}
+
+.tiptap-editor blockquote {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-editor img {
+  max-width: 100%;
+  height: auto;
+}
+
+.tiptap-editor iframe {
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+.tiptap-editor hr {
+  border-color: #e5e7eb;
+  margin: 1.5rem 0;
+}
+
+/* Placeholder */
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
 }

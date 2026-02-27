@@ -1,0 +1,208 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  avatar        String?
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  posts         Post[]
+  comments      Comment[]
+  likedPosts    Post[]      @relation("PostLikes")
+  likedComments Comment[]   @relation("CommentLikes")
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("users")
+}
+
+// ── NextAuth Models ─────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique
+  userId       String   @db.Uuid
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// ── Categories ──────────────────────────────────────────────
+
+model Category {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  posts       Post[]
+  collections Collection[]
+
+  @@map("categories")
+}
+
+// ── Posts ────────────────────────────────────────────────────
+
+model Post {
+  id                String    @id @default(uuid()) @db.Uuid
+  title             String
+  slug              String    @unique
+  meta              String
+  content           String    @db.Text
+  categoryId        String    @db.Uuid
+  tags              String[]
+  thumbnailUrl      String?
+  thumbnailPublicId String?
+  featured          Boolean   @default(false)
+  editorPick        Boolean   @default(false)
+  authorId          String    @db.Uuid
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  author          User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category        Category         @relation(fields: [categoryId], references: [id])
+  comments        Comment[]
+  likes           User[]           @relation("PostLikes")
+  collectionItems CollectionItem[]
+
+  @@index([authorId])
+  @@index([slug])
+  @@index([categoryId])
+  @@map("posts")
+}
+
+model Comment {
+  id              String    @id @default(uuid()) @db.Uuid
+  content         String    @db.Text
+  postId          String    @db.Uuid
+  authorId        String    @db.Uuid
+  parentCommentId String?   @db.Uuid
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentComment Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies       Comment[] @relation("CommentReplies")
+  likes         User[]    @relation("CommentLikes")
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentCommentId])
+  @@map("comments")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ── Collections ─────────────────────────────────────────────
+
+model Collection {
+  id          String    @id @default(uuid()) @db.Uuid
+  title       String
+  slug        String    @unique
+  description String?   @db.Text
+  coverUrl    String?
+  categoryId  String    @db.Uuid
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  category Category         @relation(fields: [categoryId], references: [id])
+  items    CollectionItem[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@map("collections")
+}
+
+model CollectionItem {
+  id           String   @id @default(uuid()) @db.Uuid
+  collectionId String   @db.Uuid
+  postId       String   @db.Uuid
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  post       Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, postId])
+  @@index([collectionId])
+  @@index([postId])
+  @@map("collection_items")
+}
+
+// ── Daily Words ─────────────────────────────────────────────
+
+model DailyWord {
+  id           String    @id @default(uuid()) @db.Uuid
+  date         DateTime  @unique @db.Date
+  text         String    @db.Text
+  author       String?
+  source       String?
+  commentary   String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  backgrounds  DailyWordBackground[]
+
+  @@index([date])
+  @@map("daily_words")
+}
+
+model DailyWordBackground {
+  id           String    @id @default(uuid()) @db.Uuid
+  dailyWordId  String    @db.Uuid
+  src          String
+  alt          String    @default("")
+  order        Int       @default(0)
+
+  dailyWord    DailyWord @relation(fields: [dailyWordId], references: [id], onDelete: Cascade)
+
+  @@index([dailyWordId])
+  @@map("daily_word_backgrounds")
+}
