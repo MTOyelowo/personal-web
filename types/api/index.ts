@@ -1,4 +1,4 @@
-import type { Post, User, Comment } from "@prisma/client";
+import type { Post, User, Comment } from "@/prisma/generated/prisma/client";
 
 // API Response Types
 export interface ApiResponse<T = unknown> {
@@ -135,4 +135,9 @@ export type LikeResponse = ApiResponse<{
 }>;
 
 // Re-export Prisma types for convenience
-export type { Post, User, Comment, Role } from "@prisma/client";
+export type {
+  Post,
+  User,
+  Comment,
+  Role,
+} from "@/prisma/generated/prisma/client";

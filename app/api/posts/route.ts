@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/prisma/generated/prisma/client";
 import { requireAdmin } from "@/lib/auth-middleware";
 
 // GET /api/posts - Get all posts with pagination and filtering
