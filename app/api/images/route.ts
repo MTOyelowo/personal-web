@@ -1,33 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-middleware";
-import cloudinary from "@/lib/cloudinary";
+import { put, list, del } from "@vercel/blob";
 
-const CLOUDINARY_FOLDER = "tripte";
-
-// GET /api/images — List all uploaded images from Cloudinary
+// GET /api/images — List all uploaded images from Vercel Blob
 export async function GET() {
   try {
     await requireAdmin();
 
-    const { resources } = await cloudinary.api.resources({
-      resource_type: "image",
-      type: "upload",
-      prefix: CLOUDINARY_FOLDER,
-      max_results: 100,
-    });
+    const { blobs } = await list({ prefix: "tripte/" });
 
-    const images = resources.map(
-      ({
-        secure_url,
-        public_id,
-      }: {
-        secure_url: string;
-        public_id: string;
-      }) => ({
-        src: secure_url,
-        publicId: public_id,
-      }),
-    );
+    const images = blobs.map((blob) => ({
+      src: blob.url,
+      blobPath: blob.pathname,
+    }));
 
     return NextResponse.json({ success: true, data: images });
   } catch (error) {
@@ -51,7 +36,7 @@ export async function GET() {
   }
 }
 
-// POST /api/images — Upload an image to Cloudinary
+// POST /api/images — Upload an image to Vercel Blob
 export async function POST(request: NextRequest) {
   try {
     await requireAdmin();
@@ -66,21 +51,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert file to buffer then base64 data URI for cloudinary upload
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
-
-    const result = await cloudinary.uploader.upload(base64, {
-      folder: CLOUDINARY_FOLDER,
+    const blob = await put(`tripte/${file.name}`, file, {
+      access: "public",
+      addRandomSuffix: true,
     });
 
     return NextResponse.json(
       {
         success: true,
         data: {
-          src: result.secure_url,
-          publicId: result.public_id,
+          src: blob.url,
+          blobPath: blob.pathname,
         },
       },
       { status: 201 },
@@ -101,6 +82,44 @@ export async function POST(request: NextRequest) {
     console.error("POST /api/images error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to upload image" },
+      { status: 500 },
+    );
+  }
+}
+
+// DELETE /api/images — Delete an image from Vercel Blob
+export async function DELETE(request: NextRequest) {
+  try {
+    await requireAdmin();
+
+    const { url } = await request.json();
+
+    if (!url) {
+      return NextResponse.json(
+        { success: false, error: "No blob URL provided" },
+        { status: 400 },
+      );
+    }
+
+    await del(url);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+    if (error instanceof Error && error.message.includes("Forbidden")) {
+      return NextResponse.json(
+        { success: false, error: "Admin access required" },
+        { status: 403 },
+      );
+    }
+    console.error("DELETE /api/images error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to delete image" },
       { status: 500 },
     );
   }

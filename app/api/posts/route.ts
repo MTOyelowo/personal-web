@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
         categoryId,
         tags: tags || [],
         thumbnailUrl: thumbnail?.url,
-        thumbnailPublicId: thumbnail?.publicId,
+        thumbnailBlobPath: thumbnail?.blobPath,
         authorId: admin.id,
       },
       include: {

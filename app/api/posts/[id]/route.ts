@@ -129,7 +129,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (tags) updateData.tags = tags;
     if (thumbnail) {
       updateData.thumbnailUrl = thumbnail.url;
-      updateData.thumbnailPublicId = thumbnail.publicId;
+      updateData.thumbnailBlobPath = thumbnail.blobPath;
     }
     if (typeof featured === "boolean") updateData.featured = featured;
     if (typeof editorPick === "boolean") updateData.editorPick = editorPick;

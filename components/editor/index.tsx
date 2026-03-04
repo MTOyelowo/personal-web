@@ -30,7 +30,7 @@ const Editor: FC<Props> = ({
   const [showGallery, setShowGallery] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  // Fetch all images from Cloudinary on mount
+  // Fetch all images from Vercel Blob on mount
   const fetchImages = useCallback(async () => {
     try {
       const { data } = await axios.get("/api/images");

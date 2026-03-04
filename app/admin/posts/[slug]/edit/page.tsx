@@ -80,7 +80,7 @@ const EditPostPage: FC = (): JSX.Element => {
     setSaving(true);
     try {
       // Upload new thumbnail if one was selected
-      let thumbnail: { url: string; publicId: string } | undefined;
+      let thumbnail: { url: string; blobPath: string } | undefined;
       if (thumbnailFile) {
         const formData = new FormData();
         formData.append("image", thumbnailFile);
@@ -88,7 +88,7 @@ const EditPostPage: FC = (): JSX.Element => {
         if (uploadRes.data.success) {
           thumbnail = {
             url: uploadRes.data.data.src,
-            publicId: uploadRes.data.data.publicId,
+            blobPath: uploadRes.data.data.blobPath,
           };
         }
       }

@@ -146,7 +146,7 @@ export const PostScalarFieldEnum = {
   categoryId: 'categoryId',
   tags: 'tags',
   thumbnailUrl: 'thumbnailUrl',
-  thumbnailPublicId: 'thumbnailPublicId',
+  thumbnailBlobPath: 'thumbnailBlobPath',
   featured: 'featured',
   editorPick: 'editorPick',
   authorId: 'authorId',

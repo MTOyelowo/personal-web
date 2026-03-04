@@ -32,7 +32,7 @@ export type PostMinAggregateOutputType = {
   content: string | null
   categoryId: string | null
   thumbnailUrl: string | null
-  thumbnailPublicId: string | null
+  thumbnailBlobPath: string | null
   featured: boolean | null
   editorPick: boolean | null
   authorId: string | null
@@ -48,7 +48,7 @@ export type PostMaxAggregateOutputType = {
   content: string | null
   categoryId: string | null
   thumbnailUrl: string | null
-  thumbnailPublicId: string | null
+  thumbnailBlobPath: string | null
   featured: boolean | null
   editorPick: boolean | null
   authorId: string | null
@@ -65,7 +65,7 @@ export type PostCountAggregateOutputType = {
   categoryId: number
   tags: number
   thumbnailUrl: number
-  thumbnailPublicId: number
+  thumbnailBlobPath: number
   featured: number
   editorPick: number
   authorId: number
@@ -83,7 +83,7 @@ export type PostMinAggregateInputType = {
   content?: true
   categoryId?: true
   thumbnailUrl?: true
-  thumbnailPublicId?: true
+  thumbnailBlobPath?: true
   featured?: true
   editorPick?: true
   authorId?: true
@@ -99,7 +99,7 @@ export type PostMaxAggregateInputType = {
   content?: true
   categoryId?: true
   thumbnailUrl?: true
-  thumbnailPublicId?: true
+  thumbnailBlobPath?: true
   featured?: true
   editorPick?: true
   authorId?: true
@@ -116,7 +116,7 @@ export type PostCountAggregateInputType = {
   categoryId?: true
   tags?: true
   thumbnailUrl?: true
-  thumbnailPublicId?: true
+  thumbnailBlobPath?: true
   featured?: true
   editorPick?: true
   authorId?: true
@@ -206,7 +206,7 @@ export type PostGroupByOutputType = {
   categoryId: string
   tags: string[]
   thumbnailUrl: string | null
-  thumbnailPublicId: string | null
+  thumbnailBlobPath: string | null
   featured: boolean
   editorPick: boolean
   authorId: string
@@ -244,7 +244,7 @@ export type PostWhereInput = {
   categoryId?: Prisma.UuidFilter<"Post"> | string
   tags?: Prisma.StringNullableListFilter<"Post">
   thumbnailUrl?: Prisma.StringNullableFilter<"Post"> | string | null
-  thumbnailPublicId?: Prisma.StringNullableFilter<"Post"> | string | null
+  thumbnailBlobPath?: Prisma.StringNullableFilter<"Post"> | string | null
   featured?: Prisma.BoolFilter<"Post"> | boolean
   editorPick?: Prisma.BoolFilter<"Post"> | boolean
   authorId?: Prisma.UuidFilter<"Post"> | string
@@ -266,7 +266,7 @@ export type PostOrderByWithRelationInput = {
   categoryId?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   thumbnailUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  thumbnailPublicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailBlobPath?: Prisma.SortOrderInput | Prisma.SortOrder
   featured?: Prisma.SortOrder
   editorPick?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
@@ -291,7 +291,7 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   categoryId?: Prisma.UuidFilter<"Post"> | string
   tags?: Prisma.StringNullableListFilter<"Post">
   thumbnailUrl?: Prisma.StringNullableFilter<"Post"> | string | null
-  thumbnailPublicId?: Prisma.StringNullableFilter<"Post"> | string | null
+  thumbnailBlobPath?: Prisma.StringNullableFilter<"Post"> | string | null
   featured?: Prisma.BoolFilter<"Post"> | boolean
   editorPick?: Prisma.BoolFilter<"Post"> | boolean
   authorId?: Prisma.UuidFilter<"Post"> | string
@@ -313,7 +313,7 @@ export type PostOrderByWithAggregationInput = {
   categoryId?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   thumbnailUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  thumbnailPublicId?: Prisma.SortOrderInput | Prisma.SortOrder
+  thumbnailBlobPath?: Prisma.SortOrderInput | Prisma.SortOrder
   featured?: Prisma.SortOrder
   editorPick?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
@@ -336,7 +336,7 @@ export type PostScalarWhereWithAggregatesInput = {
   categoryId?: Prisma.UuidWithAggregatesFilter<"Post"> | string
   tags?: Prisma.StringNullableListFilter<"Post">
   thumbnailUrl?: Prisma.StringNullableWithAggregatesFilter<"Post"> | string | null
-  thumbnailPublicId?: Prisma.StringNullableWithAggregatesFilter<"Post"> | string | null
+  thumbnailBlobPath?: Prisma.StringNullableWithAggregatesFilter<"Post"> | string | null
   featured?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
   editorPick?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
   authorId?: Prisma.UuidWithAggregatesFilter<"Post"> | string
@@ -352,7 +352,7 @@ export type PostCreateInput = {
   content: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   createdAt?: Date | string
@@ -373,7 +373,7 @@ export type PostUncheckedCreateInput = {
   categoryId: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   authorId: string
@@ -392,7 +392,7 @@ export type PostUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -413,7 +413,7 @@ export type PostUncheckedUpdateInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -433,7 +433,7 @@ export type PostCreateManyInput = {
   categoryId: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   authorId: string
@@ -449,7 +449,7 @@ export type PostUpdateManyMutationInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -465,7 +465,7 @@ export type PostUncheckedUpdateManyInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -500,7 +500,7 @@ export type PostCountOrderByAggregateInput = {
   categoryId?: Prisma.SortOrder
   tags?: Prisma.SortOrder
   thumbnailUrl?: Prisma.SortOrder
-  thumbnailPublicId?: Prisma.SortOrder
+  thumbnailBlobPath?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   editorPick?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
@@ -516,7 +516,7 @@ export type PostMaxOrderByAggregateInput = {
   content?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   thumbnailUrl?: Prisma.SortOrder
-  thumbnailPublicId?: Prisma.SortOrder
+  thumbnailBlobPath?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   editorPick?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
@@ -532,7 +532,7 @@ export type PostMinOrderByAggregateInput = {
   content?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   thumbnailUrl?: Prisma.SortOrder
-  thumbnailPublicId?: Prisma.SortOrder
+  thumbnailBlobPath?: Prisma.SortOrder
   featured?: Prisma.SortOrder
   editorPick?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
@@ -716,7 +716,7 @@ export type PostCreateWithoutAuthorInput = {
   content: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   createdAt?: Date | string
@@ -736,7 +736,7 @@ export type PostUncheckedCreateWithoutAuthorInput = {
   categoryId: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   createdAt?: Date | string
@@ -764,7 +764,7 @@ export type PostCreateWithoutLikesInput = {
   content: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   createdAt?: Date | string
@@ -784,7 +784,7 @@ export type PostUncheckedCreateWithoutLikesInput = {
   categoryId: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   authorId: string
@@ -827,7 +827,7 @@ export type PostScalarWhereInput = {
   categoryId?: Prisma.UuidFilter<"Post"> | string
   tags?: Prisma.StringNullableListFilter<"Post">
   thumbnailUrl?: Prisma.StringNullableFilter<"Post"> | string | null
-  thumbnailPublicId?: Prisma.StringNullableFilter<"Post"> | string | null
+  thumbnailBlobPath?: Prisma.StringNullableFilter<"Post"> | string | null
   featured?: Prisma.BoolFilter<"Post"> | boolean
   editorPick?: Prisma.BoolFilter<"Post"> | boolean
   authorId?: Prisma.UuidFilter<"Post"> | string
@@ -859,7 +859,7 @@ export type PostCreateWithoutCategoryInput = {
   content: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   createdAt?: Date | string
@@ -878,7 +878,7 @@ export type PostUncheckedCreateWithoutCategoryInput = {
   content: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   authorId: string
@@ -923,7 +923,7 @@ export type PostCreateWithoutCommentsInput = {
   content: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   createdAt?: Date | string
@@ -943,7 +943,7 @@ export type PostUncheckedCreateWithoutCommentsInput = {
   categoryId: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   authorId: string
@@ -977,7 +977,7 @@ export type PostUpdateWithoutCommentsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -997,7 +997,7 @@ export type PostUncheckedUpdateWithoutCommentsInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1015,7 +1015,7 @@ export type PostCreateWithoutCollectionItemsInput = {
   content: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   createdAt?: Date | string
@@ -1035,7 +1035,7 @@ export type PostUncheckedCreateWithoutCollectionItemsInput = {
   categoryId: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   authorId: string
@@ -1069,7 +1069,7 @@ export type PostUpdateWithoutCollectionItemsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1089,7 +1089,7 @@ export type PostUncheckedUpdateWithoutCollectionItemsInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1108,7 +1108,7 @@ export type PostCreateManyAuthorInput = {
   categoryId: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   createdAt?: Date | string
@@ -1123,7 +1123,7 @@ export type PostUpdateWithoutAuthorInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1143,7 +1143,7 @@ export type PostUncheckedUpdateWithoutAuthorInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1162,7 +1162,7 @@ export type PostUncheckedUpdateManyWithoutAuthorInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1177,7 +1177,7 @@ export type PostUpdateWithoutLikesInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1197,7 +1197,7 @@ export type PostUncheckedUpdateWithoutLikesInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1216,7 +1216,7 @@ export type PostUncheckedUpdateManyWithoutLikesInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1232,7 +1232,7 @@ export type PostCreateManyCategoryInput = {
   content: string
   tags?: Prisma.PostCreatetagsInput | string[]
   thumbnailUrl?: string | null
-  thumbnailPublicId?: string | null
+  thumbnailBlobPath?: string | null
   featured?: boolean
   editorPick?: boolean
   authorId: string
@@ -1248,7 +1248,7 @@ export type PostUpdateWithoutCategoryInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1267,7 +1267,7 @@ export type PostUncheckedUpdateWithoutCategoryInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1286,7 +1286,7 @@ export type PostUncheckedUpdateManyWithoutCategoryInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   tags?: Prisma.PostUpdatetagsInput | string[]
   thumbnailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailBlobPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1352,7 +1352,7 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   categoryId?: boolean
   tags?: boolean
   thumbnailUrl?: boolean
-  thumbnailPublicId?: boolean
+  thumbnailBlobPath?: boolean
   featured?: boolean
   editorPick?: boolean
   authorId?: boolean
@@ -1375,7 +1375,7 @@ export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   categoryId?: boolean
   tags?: boolean
   thumbnailUrl?: boolean
-  thumbnailPublicId?: boolean
+  thumbnailBlobPath?: boolean
   featured?: boolean
   editorPick?: boolean
   authorId?: boolean
@@ -1394,7 +1394,7 @@ export type PostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   categoryId?: boolean
   tags?: boolean
   thumbnailUrl?: boolean
-  thumbnailPublicId?: boolean
+  thumbnailBlobPath?: boolean
   featured?: boolean
   editorPick?: boolean
   authorId?: boolean
@@ -1413,7 +1413,7 @@ export type PostSelectScalar = {
   categoryId?: boolean
   tags?: boolean
   thumbnailUrl?: boolean
-  thumbnailPublicId?: boolean
+  thumbnailBlobPath?: boolean
   featured?: boolean
   editorPick?: boolean
   authorId?: boolean
@@ -1421,7 +1421,7 @@ export type PostSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "meta" | "content" | "categoryId" | "tags" | "thumbnailUrl" | "thumbnailPublicId" | "featured" | "editorPick" | "authorId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
+export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "meta" | "content" | "categoryId" | "tags" | "thumbnailUrl" | "thumbnailBlobPath" | "featured" | "editorPick" | "authorId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
 export type PostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   author?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -1457,7 +1457,7 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     categoryId: string
     tags: string[]
     thumbnailUrl: string | null
-    thumbnailPublicId: string | null
+    thumbnailBlobPath: string | null
     featured: boolean
     editorPick: boolean
     authorId: string
@@ -1899,7 +1899,7 @@ export interface PostFieldRefs {
   readonly categoryId: Prisma.FieldRef<"Post", 'String'>
   readonly tags: Prisma.FieldRef<"Post", 'String[]'>
   readonly thumbnailUrl: Prisma.FieldRef<"Post", 'String'>
-  readonly thumbnailPublicId: Prisma.FieldRef<"Post", 'String'>
+  readonly thumbnailBlobPath: Prisma.FieldRef<"Post", 'String'>
   readonly featured: Prisma.FieldRef<"Post", 'Boolean'>
   readonly editorPick: Prisma.FieldRef<"Post", 'Boolean'>
   readonly authorId: Prisma.FieldRef<"Post", 'String'>

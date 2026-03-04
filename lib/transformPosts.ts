@@ -6,7 +6,7 @@ export interface PostSummary {
   content: string;
   tags: string[];
   thumbnailUrl: string | null;
-  thumbnailPublicId: string | null;
+  thumbnailBlobPath: string | null;
   featured: boolean;
   editorPick: boolean;
   createdAt: string;

@@ -55,8 +55,8 @@ const CreatePostPage: FC = (): JSX.Element => {
 
     setSaving(true);
     try {
-      // Upload thumbnail to Cloudinary if provided
-      let thumbnail: { url: string; publicId: string } | undefined;
+      // Upload thumbnail to Vercel Blob if provided
+      let thumbnail: { url: string; blobPath: string } | undefined;
       if (thumbnailFile) {
         const formData = new FormData();
         formData.append("image", thumbnailFile);
@@ -64,7 +64,7 @@ const CreatePostPage: FC = (): JSX.Element => {
         if (uploadRes.data.success) {
           thumbnail = {
             url: uploadRes.data.data.src,
-            publicId: uploadRes.data.data.publicId,
+            blobPath: uploadRes.data.data.blobPath,
           };
         }
       }

@@ -94,7 +94,7 @@ model Post {
   categoryId        String    @db.Uuid
   tags              String[]
   thumbnailUrl      String?
-  thumbnailPublicId String?
+  thumbnailBlobPath String?
   featured          Boolean   @default(false)
   editorPick        Boolean   @default(false)
   authorId          String    @db.Uuid

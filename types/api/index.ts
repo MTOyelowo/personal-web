@@ -36,7 +36,7 @@ export interface CreatePostDto {
   tags?: string[];
   thumbnail?: {
     url: string;
-    publicId: string;
+    blobPath: string;
   };
   authorId: string;
 }
@@ -50,7 +50,7 @@ export interface UpdatePostDto {
   tags?: string[];
   thumbnail?: {
     url: string;
-    publicId: string;
+    blobPath: string;
   };
   featured?: boolean;
   editorPick?: boolean;
