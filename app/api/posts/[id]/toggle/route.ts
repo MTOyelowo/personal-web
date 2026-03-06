@@ -25,7 +25,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const MAX_FEATURED = 2;
-    const MAX_EDITOR_PICKS = 3;
+    const MAX_EDITOR_PICKS = 4;
 
     // Get current value
     const post = await prisma.post.findUnique({

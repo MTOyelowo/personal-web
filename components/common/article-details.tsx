@@ -28,9 +28,9 @@ const ArticleDetails: FC<Props> = ({ article, withThumbnail }): JSX.Element => {
               className="object-cover"
             />
           </div>
-          {/* Mobile: card below image. Desktop: badge overlay */}
-          <div className="sm:absolute sm:top-0 sm:left-0 sm:right-0 sm:z-10 p-3 lg:p-4">
-            <div className="sm:bg-white/95 sm:backdrop-blur-sm sm:rounded-lg sm:p-3 lg:p-4 sm:shadow-sm">
+          {/* Mobile: card below image. Desktop: badge overlay at bottom */}
+          <div className="sm:absolute sm:bottom-0 sm:left-0 sm:right-0 sm:z-10 p-3 lg:p-4">
+            <div className="sm:bg-white/95 sm:dark:bg-neutral-900/95 sm:backdrop-blur-sm sm:rounded-lg sm:p-3 lg:p-4 sm:shadow-sm">
               <h3 className="text-xs lg:text-sm text-secondary opacity-50 uppercase">
                 {article.category?.name}
               </h3>

@@ -160,7 +160,6 @@ export default function PostContent() {
             title={post.title}
             slug={post.slug}
             meta={post.meta}
-            thumbnailUrl={post.thumbnailUrl}
           />
         </span>
       </div>

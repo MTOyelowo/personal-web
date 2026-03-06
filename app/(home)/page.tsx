@@ -17,7 +17,7 @@ import DailyWords from "../features/daily-words";
 export default function Home() {
   const { data: featuredPosts, isLoading: featuredLoading } =
     useFeaturedPosts(2);
-  const { data: editorPicks, isLoading: picksLoading } = useEditorPicks(3);
+  const { data: editorPicks, isLoading: picksLoading } = useEditorPicks(4);
   const {
     data: allPosts,
     isLoading: postsLoading,
@@ -37,7 +37,7 @@ export default function Home() {
   const hasArticles = !postsLoading && !postsError && articles.length > 0;
 
   return (
-    <main className="flex flex-col gap-6 sm:gap-10 lg:gap-16 px-4 sm:px-[25px] font-space-grotesk">
+    <main className="flex flex-col gap-6 sm:gap-10 px-4 sm:px-[25px] font-space-grotesk">
       <DailyWords />
       <section>
         {featuredLoading ? <HeroSkeleton /> : null}
