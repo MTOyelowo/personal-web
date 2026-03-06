@@ -9,7 +9,7 @@ interface Props {
 
 const ArticlesList: FC<Props> = ({ articles }): JSX.Element => {
   return (
-    <div className="flex flex-col lg:flex-row w-full max-w-[1122px] gap-8 sm:gap-10 lg:gap-[120px]">
+    <div className="flex flex-col lg:flex-row w-full max-w-[1122px] gap-6 sm:gap-8 lg:gap-[120px]">
       <div className="flex flex-col gap-6 sm:gap-9 lg:gap-[66px]">
         {articles.map((item, index) => (
           <ArticleListItem key={index} article={item} />

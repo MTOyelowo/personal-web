@@ -37,7 +37,7 @@ export default function Home() {
   const hasArticles = !postsLoading && !postsError && articles.length > 0;
 
   return (
-    <main className="flex flex-col gap-8 sm:gap-12 lg:gap-16 px-4 sm:px-[25px] font-space-grotesk">
+    <main className="flex flex-col gap-6 sm:gap-10 lg:gap-16 px-4 sm:px-[25px] font-space-grotesk">
       <DailyWords />
       <section>
         {featuredLoading ? <HeroSkeleton /> : null}
@@ -50,13 +50,13 @@ export default function Home() {
         ) : null}
       </section>
 
-      <section className="flex items-center justify-center mx-auto mt-6 sm:mt-8 lg:mt-[50px]">
+      <section className="flex items-center justify-center mx-auto lg:mt-[50px]">
         {picksLoading ? <EditorsPickSkeleton /> : null}
 
         {hasPicks ? <EditorsPick editorPicks={editorPicks} /> : null}
       </section>
       <Separator />
-      <section className="mt-8 sm:mt-10 lg:mt-[62px]">
+      <section className="lg:mt-[62px]">
         {featuredLoading ? <HeroSkeleton /> : null}
 
         {hasFeatured && featuredPosts.length > 1 ? (
@@ -67,7 +67,7 @@ export default function Home() {
         ) : null}
       </section>
       <Separator />
-      <section className="flex items-center justify-center mx-auto mt-10 mb-8 sm:mt-14 sm:mb-12 lg:mt-[94px] lg:mb-[76px]">
+      <section className="flex items-center justify-center mx-auto mb-6 sm:mb-10 lg:mt-[94px] lg:mb-[76px]">
         {postsLoading ? <ArticleListSkeleton /> : null}
         {hasArticles ? <ArticlesList articles={articles} /> : null}
       </section>

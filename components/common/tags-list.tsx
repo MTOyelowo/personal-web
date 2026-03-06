@@ -29,11 +29,16 @@ const tags = [
 const TagsList: FC = (): JSX.Element => {
   return (
     <div className="flex flex-col gap-[3px]">
-      <h1 className="font-bold text-lg lg:text-xl">tags</h1>
-      <ul className="flex flex-row flex-wrap lg:flex-col gap-2 sm:gap-3 lg:gap-4 text-sm lg:text-base text-primary">
+      <h1 className="font-bold text-lg lg:text-xl text-foreground">tags</h1>
+      <ul className="flex flex-row flex-wrap lg:flex-col gap-2 sm:gap-3 lg:gap-4 text-sm lg:text-base text-foreground">
         {tags.map((item, index) => (
           <li key={index}>
-            <a href={item.href} className="hover:text-secondary transition-colors">{item.name}</a>
+            <a
+              href={item.href}
+              className="hover:text-muted-foreground transition-colors"
+            >
+              {item.name}
+            </a>
           </li>
         ))}
       </ul>

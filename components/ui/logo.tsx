@@ -13,6 +13,7 @@ const Logo = ({ width = 178, height = 57, ...props }: LogoProps) => {
       alt="TMOyelowo Logo"
       width={width}
       height={height}
+      className="dark:invert"
       {...props}
     />
   );

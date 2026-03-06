@@ -29,34 +29,38 @@ export default function TagPage() {
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"
-        className="flex items-center gap-1 text-sm text-gray-500 mb-8"
+        className="flex items-center gap-1 text-sm text-muted-foreground mb-8"
       >
-        <Link href="/" className="hover:text-gray-900 transition-colors">
+        <Link href="/" className="hover:text-foreground transition-colors">
           Home
         </Link>
-        <FiChevronRight size={13} className="text-gray-400 shrink-0" />
-        <span className="text-gray-900 font-medium">#{tag}</span>
+        <FiChevronRight size={13} className="text-muted-foreground shrink-0" />
+        <span className="text-foreground font-medium">#{tag}</span>
       </nav>
 
       {/* Header */}
       <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full mb-4">
-          <FiTag size={16} className="text-gray-500" />
-          <span className="text-sm font-medium text-gray-600">{tag}</span>
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted rounded-full mb-4">
+          <FiTag size={16} className="text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">
+            {tag}
+          </span>
         </div>
-        <h1 className="text-3xl lg:text-4xl font-bold text-primary">#{tag}</h1>
-        <p className="text-sm text-gray-400 mt-2">
+        <h1 className="text-3xl lg:text-4xl font-bold text-foreground">
+          #{tag}
+        </h1>
+        <p className="text-sm text-muted-foreground mt-2">
           {postList.length} {postList.length === 1 ? "post" : "posts"}
         </p>
       </div>
 
       {/* Posts */}
       {error ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-muted-foreground">
           Failed to load posts.
         </div>
       ) : postList.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-muted-foreground">
           <FiTag size={36} className="mx-auto mb-4 opacity-40" />
           <p>No posts found for &ldquo;{tag}&rdquo;.</p>
         </div>
@@ -66,11 +70,11 @@ export default function TagPage() {
             <Link
               key={post.id}
               href={`/post/${post.slug}?from=tag&tag=${encodeURIComponent(tag)}`}
-              className="group flex flex-col sm:flex-row gap-5 p-5 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200"
+              className="group flex flex-col sm:flex-row gap-5 p-5 bg-card rounded-xl border border-border hover:shadow-md dark:hover:shadow-gray-900/30 transition-all duration-200"
             >
               {/* Thumbnail */}
               {post.thumbnailUrl ? (
-                <div className="relative w-full sm:w-40 h-28 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                <div className="relative w-full sm:w-40 h-28 shrink-0 rounded-lg overflow-hidden bg-muted">
                   <Image
                     src={post.thumbnailUrl}
                     alt={post.title}
@@ -79,21 +83,21 @@ export default function TagPage() {
                   />
                 </div>
               ) : (
-                <div className="hidden sm:block w-40 h-28 shrink-0 rounded-lg bg-linear-to-br from-gray-100 to-gray-200" />
+                <div className="hidden sm:block w-40 h-28 shrink-0 rounded-lg bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700" />
               )}
 
               {/* Content */}
               <div className="flex flex-col justify-center min-w-0">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
                   {post.category.name}
                 </span>
-                <h2 className="text-lg font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
+                <h2 className="text-lg font-bold text-foreground group-hover:text-foreground/80 transition-colors">
                   {post.title}
                 </h2>
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                   {post.meta}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-400">
+                <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
                     <FiUser size={11} />
                     {post.author.name}

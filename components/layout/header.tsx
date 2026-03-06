@@ -2,6 +2,7 @@
 
 import { FC, JSX, useEffect, useRef, useState } from "react";
 import Logo from "../ui/logo";
+import ThemeToggle from "../ui/theme-toggle";
 import { FiSearch, FiMenu, FiX, FiLogOut, FiGrid } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -86,7 +87,7 @@ const Header: FC = (): JSX.Element => {
   }, []);
 
   return (
-    <header className="flex w-full h-[57px] items-center justify-between px-[25px] font-space-grotesk">
+    <header className="flex w-full h-[57px] items-center justify-between px-[25px] font-space-grotesk bg-background">
       {/* Left: Logo */}
       <div className="flex items-center">
         <Logo />
@@ -97,7 +98,7 @@ const Header: FC = (): JSX.Element => {
         {navLinks.map((item, index) => (
           <li
             key={index}
-            className={`text-primary font-libre ${
+            className={`text-foreground font-libre ${
               pathname === item.href ? "font-bold" : "font-normal"
             }`}
           >
@@ -109,11 +110,12 @@ const Header: FC = (): JSX.Element => {
       {/* Right: Search - Login - Profile for larger screens, Hamburger for mobile */}
       <div className="flex gap-[21px] items-center">
         {/* Search and Login for desktop */}
-        <div className="hidden lg:flex gap-[21px] items-center">
+        <div className="hidden lg:flex gap-8 items-center">
+          <ThemeToggle />
           <div className="relative" ref={searchRef}>
             <input
               type="text"
-              className={`w-[363px] bg-white border-2 border-primary transition h-[46px] px-6 rounded-[10px] left-0 top-[31px] ${
+              className={`w-[363px] bg-background border-2 border-border transition h-[46px] px-6 rounded-[10px] left-0 top-[31px] ${
                 isSearchOpen ? "block" : "hidden"
               } `}
             />
@@ -140,18 +142,18 @@ const Header: FC = (): JSX.Element => {
                     className="rounded-full"
                   />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm font-medium">
+                  <div className="w-9 h-9 rounded-full bg-gray-900 dark:bg-gray-200 text-white dark:text-gray-900 flex items-center justify-center text-sm font-medium">
                     {user?.name?.[0]?.toUpperCase() || "U"}
                   </div>
                 )}
               </button>
               {isProfileOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                  <div className="px-4 py-2.5 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                <div className="absolute right-0 top-full mt-2 w-52 bg-card rounded-lg shadow-lg border border-border py-1 z-50">
+                  <div className="px-4 py-2.5 border-b border-border">
+                    <p className="text-sm font-medium text-foreground truncate">
                       {user?.name}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       {user?.email}
                     </p>
                   </div>
@@ -161,7 +163,7 @@ const Header: FC = (): JSX.Element => {
                         setIsProfileOpen(false);
                         router.push("/admin");
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors cursor-pointer"
                     >
                       <FiGrid size={15} />
                       Dashboard
@@ -172,7 +174,7 @@ const Header: FC = (): JSX.Element => {
                       setIsProfileOpen(false);
                       signOut({ callbackUrl: "/" });
                     }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-muted transition-colors cursor-pointer"
                   >
                     <FiLogOut size={15} />
                     Sign Out
@@ -183,7 +185,7 @@ const Header: FC = (): JSX.Element => {
           ) : (
             <Link
               href="/auth/signin"
-              className="border-2 border-secondary w-[135px] h-[46px] rounded-[10px] flex items-center justify-center text-sm font-medium hover:bg-gray-50 transition-colors"
+              className="border-2 border-border w-[135px] h-[46px] rounded-[10px] flex items-center justify-center text-sm font-medium hover:bg-muted transition-colors"
             >
               Login
             </Link>
@@ -195,6 +197,7 @@ const Header: FC = (): JSX.Element => {
           <button onClick={toggleMobileSearch}>
             <FiSearch size={20} className="font-bold" />
           </button>
+          <ThemeToggle />
           <button onClick={toggleMenu}>
             {isMenuOpen ? (
               <FiX size={20} className="transition ease-in-out" />
@@ -207,12 +210,12 @@ const Header: FC = (): JSX.Element => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="absolute top-[60px] left-0 w-full bg-white z-50 transition ease-in-out">
+        <div className="absolute top-[60px] left-0 w-full bg-background z-50 transition ease-in-out border-b border-border">
           <ul className="flex flex-col items-center gap-4 py-4">
             {navLinks.map((item, index) => (
               <li
                 key={index}
-                className={`text-primary font-libre ${
+                className={`text-foreground font-libre ${
                   pathname === item.href ? "font-bold" : "font-normal"
                 }`}
               >
@@ -227,13 +230,13 @@ const Header: FC = (): JSX.Element => {
                   <Link
                     href="/admin"
                     onClick={toggleMenu}
-                    className="text-primary font-libre font-medium"
+                    className="text-foreground font-libre font-medium"
                   >
                     Dashboard
                   </Link>
                 )}
                 <button
-                  className="border-2 border-red-400 text-red-600 w-[135px] h-[46px] rounded-[10px] mt-2 text-sm font-medium"
+                  className="border-2 border-red-400 dark:border-red-500 text-red-600 dark:text-red-400 w-[135px] h-[46px] rounded-[10px] mt-2 text-sm font-medium"
                   onClick={() => {
                     toggleMenu();
                     signOut({ callbackUrl: "/" });
@@ -245,7 +248,7 @@ const Header: FC = (): JSX.Element => {
             ) : (
               <Link
                 href="/auth/signin"
-                className="border-2 border-secondary w-[135px] h-[46px] rounded-[10px] mt-4 flex items-center justify-center text-sm font-medium"
+                className="border-2 border-border w-[135px] h-[46px] rounded-[10px] mt-4 flex items-center justify-center text-sm font-medium"
                 onClick={toggleMenu}
               >
                 Login
@@ -256,7 +259,7 @@ const Header: FC = (): JSX.Element => {
       )}
       {/* Mobile search overlay */}
       {isMobileSearchOpen && (
-        <div className="absolute lg:hidden left-0 w-full h-60 pt-10 bg-white z-50 flex items-center justify-center">
+        <div className="absolute lg:hidden left-0 w-full h-60 pt-10 bg-background z-50 flex items-center justify-center border-b border-border">
           <div className="block relative p-5 w-full">
             <div className="flex justify-end mb-10">
               <button onClick={toggleMobileSearch}>
@@ -267,7 +270,7 @@ const Header: FC = (): JSX.Element => {
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full bg-white outline-none border transition h-10 lg:h-11 px-6 rounded-[5px] left-0 top-[31px] mt-1.5 hover:ring-1 ring-primary focus:ring-1 focus:ring-primary block"
+                className="w-full bg-background outline-none border border-border transition h-10 lg:h-11 px-6 rounded-[5px] left-0 top-[31px] mt-1.5 hover:ring-1 ring-foreground focus:ring-1 focus:ring-foreground block"
               />
 
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
