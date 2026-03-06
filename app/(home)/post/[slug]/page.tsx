@@ -44,14 +44,31 @@ export async function generateMetadata({
       authors: post.author?.name ? [post.author.name] : undefined,
       tags: post.tags,
       ...(post.thumbnailUrl && {
-        images: [{ url: post.thumbnailUrl, alt: post.title }],
+        images: [
+          {
+            url: post.thumbnailUrl,
+            alt: post.title,
+            width: 1200,
+            height: 630,
+            type: "image/jpeg",
+          },
+        ],
       }),
     },
     twitter: {
       card: post.thumbnailUrl ? "summary_large_image" : "summary",
       title: post.title,
       description,
-      ...(post.thumbnailUrl && { images: [post.thumbnailUrl] }),
+      ...(post.thumbnailUrl && {
+        images: [
+          {
+            url: post.thumbnailUrl,
+            alt: post.title,
+            width: 1200,
+            height: 630,
+          },
+        ],
+      }),
     },
     alternates: {
       canonical: `/post/${slug}`,
