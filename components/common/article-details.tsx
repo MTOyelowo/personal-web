@@ -1,6 +1,7 @@
 import { PostSummary, formatDate, getReadTime } from "@/lib/transformPosts";
 import { truncateText } from "@/lib/truncateText";
 import Image from "next/image";
+import Link from "next/link";
 import type { FC, JSX } from "react";
 
 interface Props {
@@ -10,11 +11,12 @@ interface Props {
 
 const ArticleDetails: FC<Props> = ({ article, withThumbnail }): JSX.Element => {
   return (
-    <div
+    <Link
+      href={`/post/${article.slug}`}
       className={
         withThumbnail && article.thumbnailUrl
-          ? "w-full sm:relative sm:w-[320px] lg:w-[371px] bg-card rounded-lg overflow-hidden shadow-sm"
-          : "flex flex-col"
+          ? "block w-full sm:relative sm:w-[320px] lg:w-[371px] bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          : "flex flex-col hover:opacity-80 transition-opacity cursor-pointer"
       }
     >
       {withThumbnail && article.thumbnailUrl ? (
@@ -75,7 +77,7 @@ const ArticleDetails: FC<Props> = ({ article, withThumbnail }): JSX.Element => {
           </p>
         </>
       )}
-    </div>
+    </Link>
   );
 };
 

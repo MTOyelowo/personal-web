@@ -26,6 +26,15 @@ export interface PostSummary {
     likes: number;
     comments: number;
   };
+  collectionItems?: {
+    id: string;
+    collectionId: string;
+    collection: {
+      id: string;
+      title: string;
+      slug: string;
+    };
+  }[];
 }
 
 export function getReadTime(content: string): number {

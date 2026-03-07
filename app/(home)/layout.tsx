@@ -1,4 +1,5 @@
 import Header from "@/components/layout/header";
+import ScrollingSecondaryNav from "@/components/layout/scrolling-secondary-nav";
 
 export default function HomeLayout({
   children,
@@ -8,6 +9,7 @@ export default function HomeLayout({
   return (
     <>
       <Header />
+      <ScrollingSecondaryNav />
       <main className="mt-4 lg:mt-8">{children}</main>
     </>
   );

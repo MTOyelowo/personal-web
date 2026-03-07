@@ -10,6 +10,10 @@ import { FiCalendar, FiUser, FiTag, FiChevronRight } from "react-icons/fi";
 import { PostSummary, formatDate, getReadTime } from "@/lib/transformPosts";
 import { truncateText } from "@/lib/truncateText";
 import PostShareButton from "@/components/common/post-share-button";
+import CollectionNav from "@/components/common/collection-nav";
+import CollectionTray from "@/components/common/collection-tray";
+import RelatedPosts from "@/components/common/related-posts";
+import type { CollectionData } from "@/components/common/collection-types";
 
 type BreadcrumbItem = { label: string; href?: string };
 
@@ -78,6 +82,21 @@ export default function PostContent() {
     enabled: !!slug,
   });
 
+  // Determine if this post belongs to a collection
+  const firstCollection = post?.collectionItems?.[0]?.collection ?? null;
+
+  // Fetch collection data (ordered posts) when the post is in a collection
+  const { data: collectionData } = useQuery<CollectionData>({
+    queryKey: ["collection-posts", firstCollection?.id],
+    queryFn: async () => {
+      const res = await axios.get(
+        `/api/collections/${firstCollection!.id}/posts`,
+      );
+      return res.data.data;
+    },
+    enabled: !!firstCollection?.id,
+  });
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-24">
@@ -97,106 +116,146 @@ export default function PostContent() {
     );
   }
 
+  // Collection navigation helpers
+  const isInCollection = !!collectionData;
+  let currentIndex = -1;
+  let prevPost = null;
+  let nextPost = null;
+
+  if (collectionData) {
+    currentIndex = collectionData.items.findIndex(
+      (item) => item.post.id === post.id,
+    );
+    if (currentIndex > 0) {
+      prevPost = collectionData.items[currentIndex - 1].post;
+    }
+    if (currentIndex < collectionData.items.length - 1) {
+      nextPost = collectionData.items[currentIndex + 1].post;
+    }
+  }
+
   const breadcrumbs = getBreadcrumbs(
     post,
     from,
-    collectionSlug,
-    collectionName,
+    collectionSlug ?? collectionData?.slug ?? null,
+    collectionName ?? collectionData?.title ?? null,
     tagParam,
   );
 
   return (
-    <article className="max-w-3xl mx-auto px-6 py-12 font-space-grotesk">
-      {/* Breadcrumb */}
-      <nav
-        aria-label="Breadcrumb"
-        className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground mb-8"
-      >
-        {breadcrumbs.map((crumb, i) => {
-          const isLast = i === breadcrumbs.length - 1;
-          return (
-            <span key={i} className="inline-flex items-center gap-1">
-              {i > 0 && (
-                <FiChevronRight
-                  size={13}
-                  className="text-muted-foreground shrink-0"
-                />
-              )}
-              {crumb.href && !isLast ? (
-                <Link
-                  href={crumb.href}
-                  className="hover:text-foreground transition-colors"
-                >
-                  {crumb.label}
-                </Link>
-              ) : (
-                <span className={isLast ? "text-foreground font-medium" : ""}>
-                  {crumb.label}
-                </span>
-              )}
-            </span>
-          );
-        })}
-      </nav>
+    <>
+      <article className="max-w-3xl mx-auto px-6 py-12 font-space-grotesk">
+        {/* Breadcrumb */}
+        <nav
+          aria-label="Breadcrumb"
+          className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground mb-8"
+        >
+          {breadcrumbs.map((crumb, i) => {
+            const isLast = i === breadcrumbs.length - 1;
+            return (
+              <span key={i} className="inline-flex items-center gap-1">
+                {i > 0 && (
+                  <FiChevronRight
+                    size={13}
+                    className="text-muted-foreground shrink-0"
+                  />
+                )}
+                {crumb.href && !isLast ? (
+                  <Link
+                    href={crumb.href}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    {crumb.label}
+                  </Link>
+                ) : (
+                  <span className={isLast ? "text-foreground font-medium" : ""}>
+                    {crumb.label}
+                  </span>
+                )}
+              </span>
+            );
+          })}
+        </nav>
 
-      {/* Title */}
-      <h1 className="text-3xl lg:text-5xl font-bold text-foreground mt-2 mb-4 font-libre leading-tight">
-        {post.title}
-      </h1>
+        {/* Title */}
+        <h1 className="text-3xl lg:text-5xl font-bold text-foreground mt-2 mb-4 font-libre leading-tight">
+          {post.title}
+        </h1>
 
-      {/* Meta info */}
-      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8">
-        <span className="inline-flex items-center gap-1.5">
-          <FiUser size={14} />
-          {post.author.name}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <FiCalendar size={14} />
-          {formatDate(post.createdAt)}
-        </span>
-        <span>{getReadTime(post.content)} min read</span>
-        <span className="ml-auto">
-          <PostShareButton
-            title={post.title}
-            slug={post.slug}
-            meta={post.meta}
-          />
-        </span>
-      </div>
-
-      {/* Thumbnail */}
-      {post.thumbnailUrl && (
-        <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-10">
-          <Image
-            src={post.thumbnailUrl}
-            alt={post.title}
-            fill
-            className="object-cover"
-          />
+        {/* Meta info */}
+        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8">
+          <span className="inline-flex items-center gap-1.5">
+            <FiUser size={14} />
+            {post.author.name}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <FiCalendar size={14} />
+            {formatDate(post.createdAt)}
+          </span>
+          <span>{getReadTime(post.content)} min read</span>
+          <span className="ml-auto">
+            <PostShareButton
+              title={post.title}
+              slug={post.slug}
+              meta={post.meta}
+            />
+          </span>
         </div>
-      )}
 
-      {/* Content */}
-      <div
-        className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+        {/* Thumbnail */}
+        {post.thumbnailUrl && (
+          <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-10">
+            <Image
+              src={post.thumbnailUrl}
+              alt={post.title}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
 
-      {/* Tags */}
-      {post.tags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-border">
-          <FiTag size={14} className="text-muted-foreground" />
-          {post.tags.map((tag) => (
-            <Link
-              key={tag}
-              href={`/tags/${encodeURIComponent(tag)}`}
-              className="px-3 py-1 text-xs font-medium bg-muted text-muted-foreground rounded-full hover:bg-muted/80 transition-colors"
-            >
-              {tag}
-            </Link>
-          ))}
-        </div>
+        {/* Content */}
+        <div
+          className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
+
+        {/* Tags */}
+        {post.tags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-border">
+            <FiTag size={14} className="text-muted-foreground" />
+            {post.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/tags/${encodeURIComponent(tag)}`}
+                className="px-3 py-1 text-xs font-medium bg-muted text-muted-foreground rounded-full hover:bg-muted/80 transition-colors"
+              >
+                {tag}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Collection: Previous / Next navigation */}
+        {isInCollection && collectionData && (
+          <CollectionNav
+            collectionTitle={collectionData.title}
+            collectionSlug={collectionData.slug}
+            prevPost={prevPost}
+            nextPost={nextPost}
+            currentIndex={currentIndex}
+            totalPosts={collectionData.items.length}
+          />
+        )}
+
+        {/* Non-collection: Related Posts */}
+        {!isInCollection && <RelatedPosts postSlug={slug} />}
+      </article>
+
+      {/* Collection: Floating tray button */}
+      {isInCollection && collectionData && (
+        <CollectionTray collection={collectionData} currentPostId={post.id} />
       )}
-    </article>
+    </>
   );
 }
