@@ -15,6 +15,7 @@ import {
   type ProjectTechItem,
   type ProjectImageData,
 } from "@/hooks/query/useAbout";
+import { getTechIcon } from "@/lib/tech-options";
 import Spinner from "@/components/ui/spinner";
 
 const ProjectsSection: FC = () => {
@@ -109,14 +110,18 @@ const ProjectsSection: FC = () => {
               <span className="text-xs text-muted-foreground font-space-grotesk">
                 Built with:
               </span>
-              {techStack.map((tech, i) => (
-                <span
-                  key={i}
-                  className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground font-space-grotesk"
-                >
-                  {tech.label}
-                </span>
-              ))}
+              {techStack.map((tech, i) => {
+                const TechIcon = getTechIcon(tech.icon);
+                return (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground font-space-grotesk"
+                  >
+                    {TechIcon && <TechIcon size={12} />}
+                    {tech.label}
+                  </span>
+                );
+              })}
             </div>
           </div>
         </div>

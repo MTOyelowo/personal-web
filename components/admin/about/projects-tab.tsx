@@ -3,6 +3,7 @@
 import { FC, useRef, useState } from "react";
 import Image from "next/image";
 import { FiX, FiEdit2, FiTrash2, FiUpload, FiImage } from "react-icons/fi";
+import TechStackPicker from "@/components/admin/tech-stack-picker";
 import toast from "react-hot-toast";
 import Spinner from "@/components/ui/spinner";
 import FormCard from "@/components/admin/form-card";
@@ -84,11 +85,9 @@ const ProjectsTab: FC = () => {
     }),
   });
 
-  // Sub-form state for adding github links / tech items
+  // Sub-form state for adding github links
   const [githubLabel, setGithubLabel] = useState("");
   const [githubHref, setGithubHref] = useState("");
-  const [techLabel, setTechLabel] = useState("");
-  const [techIcon, setTechIcon] = useState("");
   const [deleteImageTarget, setDeleteImageTarget] = useState<{
     id: string;
     projectId: string;
@@ -191,22 +190,6 @@ const ProjectsTab: FC = () => {
     setForm((f) => ({
       ...f,
       githubLinks: f.githubLinks.filter((_, idx) => idx !== i),
-    }));
-
-  const addTechItem = () => {
-    if (!techLabel) return;
-    setForm((f) => ({
-      ...f,
-      techStack: [...f.techStack, { label: techLabel, icon: techIcon }],
-    }));
-    setTechLabel("");
-    setTechIcon("");
-  };
-
-  const removeTechItem = (i: number) =>
-    setForm((f) => ({
-      ...f,
-      techStack: f.techStack.filter((_, idx) => idx !== i),
     }));
 
   /* ── Render ────────────────────────────────────────────── */
@@ -343,50 +326,11 @@ const ProjectsTab: FC = () => {
             }
           />
 
-          {/* Tech Stack sub-form */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tech Stack
-            </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {form.techStack.map((tech, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-sm text-gray-700"
-                >
-                  {tech.label}
-                  <button
-                    onClick={() => removeTechItem(i)}
-                    className="text-gray-400 hover:text-red-600 cursor-pointer"
-                  >
-                    <FiX size={12} />
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={techLabel}
-                onChange={(e) => setTechLabel(e.target.value)}
-                placeholder="Technology name"
-                className="w-40 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10"
-              />
-              <input
-                type="text"
-                value={techIcon}
-                onChange={(e) => setTechIcon(e.target.value)}
-                placeholder="Icon path (optional)"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10"
-              />
-              <button
-                onClick={addTechItem}
-                className="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
-              >
-                Add
-              </button>
-            </div>
-          </div>
+          {/* Tech Stack picker */}
+          <TechStackPicker
+            items={form.techStack}
+            onChange={(techStack) => setForm((f) => ({ ...f, techStack }))}
+          />
         </FormCard>
       )}
 
