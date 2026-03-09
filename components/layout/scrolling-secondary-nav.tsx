@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link";
 import { useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 interface NavItem {
   label: string;
@@ -19,6 +20,7 @@ const typeStyles: Record<NavItem["type"], string> = {
 };
 
 export default function ScrollingSecondaryNav() {
+  const pathname = usePathname();
   const { data: items } = useQuery<NavItem[]>({
     queryKey: ["nav-items"],
     queryFn: async () => {
@@ -50,6 +52,9 @@ export default function ScrollingSecondaryNav() {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
   }, []);
+
+  // Don't render on the about page — it has its own section nav
+  if (pathname === "/about") return null;
 
   if (!items || items.length === 0) return null;
 

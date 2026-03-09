@@ -22,7 +22,7 @@ const ContactForm: FC = () => {
   };
 
   return (
-    <section className="py-16 px-4 bg-muted/30">
+    <section id="contact" className="py-16 px-4 bg-muted/30">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-4 mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground font-space-grotesk">

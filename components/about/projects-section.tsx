@@ -17,6 +17,12 @@ import {
 } from "@/hooks/query/useAbout";
 import { getTechIcon } from "@/lib/tech-options";
 import Spinner from "@/components/ui/spinner";
+import dynamic from "next/dynamic";
+
+const RichTextViewer = dynamic(
+  () => import("@/components/editor/rich-text-viewer"),
+  { ssr: false },
+);
 
 const ProjectsSection: FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -48,7 +54,7 @@ const ProjectsSection: FC = () => {
   };
 
   return (
-    <section className="py-16 px-4 bg-muted/30">
+    <section id="projects" className="py-16 px-4 bg-muted/30">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground font-space-grotesk">
@@ -101,9 +107,10 @@ const ProjectsSection: FC = () => {
               </div>
             </div>
 
-            <p className="text-sm text-muted-foreground leading-relaxed mb-6 font-space-grotesk">
-              {project.description}
-            </p>
+            <RichTextViewer
+              content={project.description}
+              className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-space-grotesk prose-headings:text-card-foreground prose-p:text-muted-foreground prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-li:text-muted-foreground prose-strong:text-card-foreground mb-6 font-space-grotesk text-sm"
+            />
 
             {/* Tech stack */}
             <div className="flex items-center gap-3 flex-wrap">

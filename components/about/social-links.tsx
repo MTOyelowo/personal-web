@@ -42,7 +42,7 @@ const SocialLinks: FC = () => {
   }
 
   return (
-    <section className="py-12 px-4 bg-muted/30">
+    <section id="social-links" className="py-12 px-4 bg-muted/30">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-8">

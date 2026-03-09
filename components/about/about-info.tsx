@@ -39,7 +39,7 @@ const AboutInfo: FC = () => {
   }
 
   return (
-    <section className="py-16 px-4">
+    <section id="about-info" className="py-16 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground font-space-grotesk">

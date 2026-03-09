@@ -10,11 +10,14 @@ import FormCard from "@/components/admin/form-card";
 import ConfirmDialog from "@/components/admin/confirm-dialog";
 import {
   InputField,
-  TextareaField,
   NumberField,
   FieldRow,
 } from "@/components/admin/form-field";
 import { useCrudState } from "@/hooks/common/useCrudState";
+import dynamic from "next/dynamic";
+
+const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
+
 import {
   useProjects,
   useCreateProject,
@@ -233,13 +236,16 @@ const ProjectsTab: FC = () => {
             />
           </FieldRow>
 
-          <TextareaField
-            label="Description"
-            required
-            value={form.description}
-            onChange={(v) => setForm({ ...form, description: v })}
-            rows={3}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description <span className="text-red-500">*</span>
+            </label>
+            <Editor
+              value={form.description}
+              onChange={(html) => setForm((f) => ({ ...f, description: html }))}
+              placeholder="Describe the project — features, technologies, technical highlights…"
+            />
+          </div>
 
           <FieldRow>
             <div className="flex items-end gap-4">

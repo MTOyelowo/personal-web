@@ -14,6 +14,12 @@ import CollectionNav from "@/components/common/collection-nav";
 import CollectionTray from "@/components/common/collection-tray";
 import RelatedPosts from "@/components/common/related-posts";
 import type { CollectionData } from "@/components/common/collection-types";
+import dynamic from "next/dynamic";
+
+const RichTextViewer = dynamic(
+  () => import("@/components/editor/rich-text-viewer"),
+  { ssr: false },
+);
 
 type BreadcrumbItem = { label: string; href?: string };
 
@@ -215,9 +221,9 @@ export default function PostContent() {
         )}
 
         {/* Content */}
-        <div
+        <RichTextViewer
+          content={post.content}
           className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400"
-          dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
         {/* Tags */}

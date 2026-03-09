@@ -82,7 +82,7 @@ export default function HeroSection() {
   const cvUrl = about?.cvUrl || "/cv/mayowa-taofeeq-oyelowo-resume.pdf";
 
   return (
-    <section className="relative overflow-hidden">
+    <section id="hero" className="relative overflow-hidden">
       {/* Decorative blobs */}
       <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-purple-500/5 blur-3xl" />
       <div className="absolute top-40 -right-32 w-96 h-96 rounded-full bg-blue-500/5 blur-3xl" />
