@@ -1,7 +1,8 @@
 "use client";
 
-import { FC, useState } from "react";
-import { FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FC, useRef, useState } from "react";
+import Image from "next/image";
+import { FiX, FiEdit2, FiTrash2, FiUpload, FiImage } from "react-icons/fi";
 import toast from "react-hot-toast";
 import Spinner from "@/components/ui/spinner";
 import FormCard from "@/components/admin/form-card";
@@ -18,7 +19,10 @@ import {
   useCreateProject,
   useUpdateProject,
   useDeleteProject,
+  useUploadProjectImage,
+  useDeleteProjectImage,
   type ProjectData,
+  type ProjectImageData,
   type ProjectGithubLink,
   type ProjectTechItem,
 } from "@/hooks/query/useAbout";
@@ -28,7 +32,6 @@ import {
 interface ProjectForm {
   title: string;
   description: string;
-  image: string;
   liveUrl: string;
   githubLinks: ProjectGithubLink[];
   techStack: ProjectTechItem[];
@@ -39,7 +42,6 @@ interface ProjectForm {
 const emptyForm: ProjectForm = {
   title: "",
   description: "",
-  image: "",
   liveUrl: "",
   githubLinks: [],
   techStack: [],
@@ -54,6 +56,8 @@ const ProjectsTab: FC = () => {
   const createMutation = useCreateProject();
   const updateMutation = useUpdateProject();
   const deleteMutation = useDeleteProject();
+  const uploadImageMutation = useUploadProjectImage();
+  const deleteImageMutation = useDeleteProjectImage();
 
   const {
     editing,
@@ -72,7 +76,6 @@ const ProjectsTab: FC = () => {
     itemToForm: (p) => ({
       title: p.title,
       description: p.description,
-      image: p.image ?? "",
       liveUrl: p.liveUrl,
       githubLinks: p.githubLinks as ProjectGithubLink[],
       techStack: p.techStack as ProjectTechItem[],
@@ -86,6 +89,17 @@ const ProjectsTab: FC = () => {
   const [githubHref, setGithubHref] = useState("");
   const [techLabel, setTechLabel] = useState("");
   const [techIcon, setTechIcon] = useState("");
+  const [deleteImageTarget, setDeleteImageTarget] = useState<{
+    id: string;
+    projectId: string;
+    label: string;
+  } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Current project being edited (for image management)
+  const editingProject =
+    editing && !isNew ? projects?.find((p) => p.id === editing) : null;
 
   if (isLoading) {
     return (
@@ -106,8 +120,7 @@ const ProjectsTab: FC = () => {
       if (isNew) {
         await createMutation.mutateAsync({
           ...form,
-          image: form.image || null,
-          imageBlobPath: null,
+          images: [],
         });
         toast.success("Project created");
       } else if (editing) {
@@ -128,6 +141,39 @@ const ProjectsTab: FC = () => {
       setDeleteTarget(null);
     } catch {
       toast.error("Failed to delete project");
+    }
+  };
+
+  const handleImageUpload = async (files: FileList) => {
+    if (!editing || isNew) return;
+
+    const existingCount = editingProject?.images?.length ?? 0;
+
+    for (let i = 0; i < files.length; i++) {
+      try {
+        await uploadImageMutation.mutateAsync({
+          projectId: editing,
+          file: files[i],
+          order: existingCount + i,
+        });
+        toast.success(`Uploaded "${files[i].name}"`);
+      } catch {
+        toast.error(`Failed to upload "${files[i].name}"`);
+      }
+    }
+  };
+
+  const handleDeleteImage = async () => {
+    if (!deleteImageTarget) return;
+    try {
+      await deleteImageMutation.mutateAsync({
+        projectId: deleteImageTarget.projectId,
+        imageId: deleteImageTarget.id,
+      });
+      toast.success("Image deleted");
+      setDeleteImageTarget(null);
+    } catch {
+      toast.error("Failed to delete image");
     }
   };
 
@@ -213,12 +259,6 @@ const ProjectsTab: FC = () => {
           />
 
           <FieldRow>
-            <InputField
-              label="Image URL"
-              value={form.image}
-              onChange={(v) => setForm({ ...form, image: v })}
-              placeholder="/images/project.png"
-            />
             <div className="flex items-end gap-4">
               <NumberField
                 label="Order"
@@ -238,6 +278,31 @@ const ProjectsTab: FC = () => {
               </label>
             </div>
           </FieldRow>
+
+          {/* Image Gallery (only for existing projects) */}
+          {!isNew && editingProject && (
+            <ImageGallerySection
+              images={editingProject.images ?? []}
+              projectId={editingProject.id}
+              isUploading={uploadImageMutation.isPending}
+              fileInputRef={fileInputRef}
+              onUpload={handleImageUpload}
+              onDeleteImage={(img) =>
+                setDeleteImageTarget({
+                  id: img.id,
+                  projectId: editingProject.id,
+                  label: img.alt || img.url.split("/").pop() || "image",
+                })
+              }
+            />
+          )}
+
+          {isNew && (
+            <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-400">
+              <FiImage className="mx-auto mb-1" size={20} />
+              Save the project first, then you can upload images.
+            </div>
+          )}
 
           {/* GitHub Links sub-form */}
           <TagListEditor
@@ -337,6 +402,9 @@ const ProjectsTab: FC = () => {
                 <th className="text-left px-5 py-3 font-medium text-gray-500">
                   Title
                 </th>
+                <th className="text-left px-5 py-3 font-medium text-gray-500 hidden sm:table-cell">
+                  Images
+                </th>
                 <th className="text-left px-5 py-3 font-medium text-gray-500 hidden md:table-cell">
                   Tech
                 </th>
@@ -359,6 +427,32 @@ const ProjectsTab: FC = () => {
                     <span className="text-sm font-medium text-gray-900">
                       {project.title}
                     </span>
+                  </td>
+                  <td className="px-5 py-3.5 hidden sm:table-cell">
+                    <div className="flex items-center -space-x-2">
+                      {(project.images ?? []).slice(0, 3).map((img) => (
+                        <div
+                          key={img.id}
+                          className="w-8 h-8 rounded border-2 border-white overflow-hidden relative"
+                        >
+                          <Image
+                            src={img.url}
+                            alt={img.alt}
+                            fill
+                            className="object-cover"
+                            sizes="32px"
+                          />
+                        </div>
+                      ))}
+                      {(project.images ?? []).length > 3 && (
+                        <span className="w-8 h-8 rounded border-2 border-white bg-gray-100 flex items-center justify-center text-xs text-gray-500">
+                          +{project.images.length - 3}
+                        </span>
+                      )}
+                      {(!project.images || project.images.length === 0) && (
+                        <span className="text-xs text-gray-400">None</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-5 py-3.5 hidden md:table-cell">
                     <div className="flex flex-wrap gap-1">
@@ -427,9 +521,104 @@ const ProjectsTab: FC = () => {
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
       />
+
+      <ConfirmDialog
+        open={!!deleteImageTarget}
+        title="Delete Image"
+        message={`Delete image "${deleteImageTarget?.label}"? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={handleDeleteImage}
+        onCancel={() => setDeleteImageTarget(null)}
+      />
     </div>
   );
 };
+
+/* ── Image Gallery Section ───────────────────────────────── */
+
+function ImageGallerySection({
+  images,
+  isUploading,
+  fileInputRef,
+  onUpload,
+  onDeleteImage,
+}: {
+  images: ProjectImageData[];
+  projectId: string;
+  isUploading: boolean;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  onUpload: (files: FileList) => void;
+  onDeleteImage: (img: ProjectImageData) => void;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Images ({images.length})
+      </label>
+
+      {/* Image thumbnails grid */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-3">
+        {images.map((img) => (
+          <div
+            key={img.id}
+            className="relative group aspect-video rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
+          >
+            <Image
+              src={img.url}
+              alt={img.alt}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 33vw, 20vw"
+            />
+            <button
+              onClick={() => onDeleteImage(img)}
+              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              title="Remove image"
+            >
+              <FiX size={12} />
+            </button>
+            {img.alt && (
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] px-1.5 py-0.5 truncate opacity-0 group-hover:opacity-100 transition-opacity">
+                {img.alt}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Upload button */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className="aspect-video rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors cursor-pointer disabled:opacity-50"
+        >
+          {isUploading ? (
+            <Spinner size={16} />
+          ) : (
+            <>
+              <FiUpload size={16} />
+              <span className="text-[10px]">Upload</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            onUpload(e.target.files);
+            e.target.value = "";
+          }
+        }}
+      />
+    </div>
+  );
+}
 
 /* ── Tag list editor helper (local) ──────────────────────── */
 

@@ -64,6 +64,7 @@ export const ModelName = {
   AboutContent: 'AboutContent',
   Skill: 'Skill',
   Project: 'Project',
+  ProjectImage: 'ProjectImage',
   WorkExperience: 'WorkExperience',
   AboutInfoItem: 'AboutInfoItem',
   SocialLink: 'SocialLink'
@@ -258,8 +259,6 @@ export const ProjectScalarFieldEnum = {
   id: 'id',
   title: 'title',
   description: 'description',
-  image: 'image',
-  imageBlobPath: 'imageBlobPath',
   liveUrl: 'liveUrl',
   githubLinks: 'githubLinks',
   techStack: 'techStack',
@@ -270,6 +269,19 @@ export const ProjectScalarFieldEnum = {
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const ProjectImageScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  url: 'url',
+  blobPath: 'blobPath',
+  alt: 'alt',
+  order: 'order',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectImageScalarFieldEnum = (typeof ProjectImageScalarFieldEnum)[keyof typeof ProjectImageScalarFieldEnum]
 
 
 export const WorkExperienceScalarFieldEnum = {

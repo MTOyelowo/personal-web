@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth-middleware";
+import { del } from "@vercel/blob";
 
 // PATCH /api/about/projects/[id] — Admin: update a project
 export async function PATCH(
@@ -15,8 +16,6 @@ export async function PATCH(
     const {
       title,
       description,
-      image,
-      imageBlobPath,
       liveUrl,
       githubLinks,
       techStack,
@@ -29,14 +28,13 @@ export async function PATCH(
       data: {
         ...(title !== undefined && { title }),
         ...(description !== undefined && { description }),
-        ...(image !== undefined && { image }),
-        ...(imageBlobPath !== undefined && { imageBlobPath }),
         ...(liveUrl !== undefined && { liveUrl }),
         ...(githubLinks !== undefined && { githubLinks }),
         ...(techStack !== undefined && { techStack }),
         ...(contributor !== undefined && { contributor }),
         ...(order !== undefined && { order }),
       },
+      include: { images: { orderBy: { order: "asc" } } },
     });
 
     return NextResponse.json({ success: true, data: project });
@@ -70,6 +68,13 @@ export async function DELETE(
     await requireAdmin();
 
     const { id } = await params;
+
+    // Delete associated blob images first
+    const images = await prisma.projectImage.findMany({
+      where: { projectId: id },
+    });
+    await Promise.all(images.map((img) => del(img.url).catch(() => {})));
+
     await prisma.project.delete({ where: { id } });
 
     return NextResponse.json({ success: true, data: null });

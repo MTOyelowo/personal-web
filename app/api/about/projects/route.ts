@@ -7,6 +7,7 @@ export async function GET() {
   try {
     const projects = await prisma.project.findMany({
       orderBy: { order: "asc" },
+      include: { images: { orderBy: { order: "asc" } } },
     });
 
     return NextResponse.json({ success: true, data: projects });
@@ -28,8 +29,6 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
-      image,
-      imageBlobPath,
       liveUrl,
       githubLinks,
       techStack,
@@ -48,14 +47,13 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        image: image ?? null,
-        imageBlobPath: imageBlobPath ?? null,
         liveUrl: liveUrl ?? "",
         githubLinks: githubLinks ?? [],
         techStack: techStack ?? [],
         contributor: contributor ?? false,
         order: order ?? 0,
       },
+      include: { images: { orderBy: { order: "asc" } } },
     });
 
     return NextResponse.json({ success: true, data: project }, { status: 201 });

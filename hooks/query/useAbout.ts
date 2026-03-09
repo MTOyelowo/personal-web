@@ -36,17 +36,26 @@ export interface ProjectTechItem {
   icon: string;
 }
 
+export interface ProjectImageData {
+  id: string;
+  projectId: string;
+  url: string;
+  blobPath: string;
+  alt: string;
+  order: number;
+  createdAt: string;
+}
+
 export interface ProjectData {
   id: string;
   title: string;
   description: string;
-  image: string | null;
-  imageBlobPath: string | null;
   liveUrl: string;
   githubLinks: ProjectGithubLink[];
   techStack: ProjectTechItem[];
   contributor: boolean;
   order: number;
+  images: ProjectImageData[];
   createdAt: string;
   updatedAt: string;
 }
@@ -179,6 +188,74 @@ export const useDeleteProject = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       await axios.delete(`/api/about/projects/${id}`);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["about", "projects"] }),
+  });
+};
+
+// ── Project Images ──────────────────────────────────────────
+
+export const useUploadProjectImage = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      file,
+      alt,
+      order,
+    }: {
+      projectId: string;
+      file: File;
+      alt?: string;
+      order?: number;
+    }) => {
+      const formData = new FormData();
+      formData.append("image", file);
+      if (alt) formData.append("alt", alt);
+      if (order !== undefined) formData.append("order", String(order));
+      const res = await axios.post(
+        `/api/about/projects/${projectId}/images`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } },
+      );
+      return res.data.data as ProjectImageData;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["about", "projects"] }),
+  });
+};
+
+export const useDeleteProjectImage = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      imageId,
+    }: {
+      projectId: string;
+      imageId: string;
+    }) => {
+      await axios.delete(`/api/about/projects/${projectId}/images`, {
+        data: { imageId },
+      });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["about", "projects"] }),
+  });
+};
+
+export const useReorderProjectImages = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      images,
+    }: {
+      projectId: string;
+      images: { id: string; order: number; alt?: string }[];
+    }) => {
+      const res = await axios.patch(`/api/about/projects/${projectId}/images`, {
+        images,
+      });
+      return res.data.data as ProjectImageData[];
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["about", "projects"] }),
   });
