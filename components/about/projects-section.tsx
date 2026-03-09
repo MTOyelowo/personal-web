@@ -9,97 +9,32 @@ import {
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
-
-interface TechItem {
-  label: string;
-  icon: string;
-}
-
-interface Project {
-  image: string;
-  title: string;
-  description: string;
-  liveUrl: string;
-  githubLinks: { label: string; href: string }[];
-  techStack: TechItem[];
-  contributor?: boolean;
-}
-
-const projects: Project[] = [
-  {
-    image: "/images/cropped-topratehero.png",
-    title: "TopRate Transfer",
-    description:
-      "TopRate Transfer is a financial technology startup domiciled in Australia. The company facilitates the transfer of money across borders.",
-    liveUrl: "https://topratetransfer.com.au/",
-    githubLinks: [],
-    techStack: [
-      { label: "TypeScript", icon: "/images/typescript.webp" },
-      { label: "React", icon: "/images/react.webp" },
-      { label: "Next.js", icon: "/images/next-js.webp" },
-      { label: "Tailwind CSS", icon: "/images/tailwind.webp" },
-    ],
-  },
-  {
-    image: "/images/cropped-spheresed.png",
-    title: "SpheresED Junior",
-    description:
-      "An innovative web application aimed at enhancing students' learning experiences. Leveraging images and audio recordings, it provides an immersive platform for educational content delivery with quizzes.",
-    liveUrl: "https://spheres-ed-junior.vercel.app/",
-    githubLinks: [
-      {
-        label: "Frontend & Backend",
-        href: "https://github.com/SpheresED/spheres_ed_junior",
-      },
-    ],
-    techStack: [
-      { label: "TypeScript", icon: "/images/typescript.webp" },
-      { label: "React", icon: "/images/react.webp" },
-      { label: "Next.js", icon: "/images/next-js.webp" },
-      { label: "MongoDB", icon: "/images/mongodb.webp" },
-      { label: "Tailwind CSS", icon: "/images/tailwind.webp" },
-    ],
-  },
-  {
-    image: "/images/cropped-tripte.png",
-    title: "Tripte Media",
-    description:
-      "A dynamic blog site designed to engage readers through interactive features such as liking posts and leaving comments. Built with Next.js and Tailwind CSS with MongoDB backend.",
-    liveUrl: "http://triptemedia.vercel.app/",
-    githubLinks: [
-      {
-        label: "Frontend & Backend",
-        href: "https://github.com/MTOyelowo/tripte",
-      },
-    ],
-    techStack: [
-      { label: "TypeScript", icon: "/images/typescript.webp" },
-      { label: "React", icon: "/images/react.webp" },
-      { label: "Next.js", icon: "/images/next-js.webp" },
-      { label: "MongoDB", icon: "/images/mongodb.webp" },
-      { label: "Tailwind CSS", icon: "/images/tailwind.webp" },
-    ],
-  },
-  {
-    image: "/images/cropped-zheeta.png",
-    title: "Zheeta",
-    description:
-      "An integrated social networking platform, touted as Africa's first with affiliate, classified, dating, fundraising, messaging, social feeds, gifting and more.",
-    liveUrl: "https://zheeta.com/",
-    githubLinks: [],
-    techStack: [
-      { label: "TypeScript", icon: "/images/typescript.webp" },
-      { label: "React", icon: "/images/react.webp" },
-      { label: "Vue.js", icon: "/images/vue.png" },
-      { label: "SCSS", icon: "/images/scss.png" },
-    ],
-    contributor: true,
-  },
-];
+import {
+  useProjects,
+  type ProjectGithubLink,
+  type ProjectTechItem,
+} from "@/hooks/query/useAbout";
+import Spinner from "@/components/ui/spinner";
 
 const ProjectsSection: FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { data: projects, isLoading } = useProjects();
+
+  if (isLoading) {
+    return (
+      <section className="flex items-center justify-center py-16">
+        <Spinner size={28} />
+      </section>
+    );
+  }
+
+  if (!projects || projects.length === 0) {
+    return null;
+  }
+
   const project = projects[currentIndex];
+  const githubLinks = project.githubLinks as ProjectGithubLink[];
+  const techStack = project.techStack as ProjectTechItem[];
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? projects.length - 1 : prev - 1));
@@ -122,19 +57,21 @@ const ProjectsSection: FC = () => {
         {/* Project card */}
         <div className="rounded-2xl overflow-hidden border border-border bg-card">
           {/* Image */}
-          <div className="relative w-full aspect-video bg-muted">
-            <Image
-              src={project.image}
-              alt={project.title}
-              fill
-              className="object-cover"
-            />
-            {project.contributor && (
-              <span className="absolute top-4 right-4 px-3 py-1 text-xs font-medium rounded-full bg-red-500/90 text-white font-space-grotesk">
-                Contributor
-              </span>
-            )}
-          </div>
+          {project.image && (
+            <div className="relative w-full aspect-video bg-muted">
+              <Image
+                src={project.image}
+                alt={project.title}
+                fill
+                className="object-cover"
+              />
+              {project.contributor && (
+                <span className="absolute top-4 right-4 px-3 py-1 text-xs font-medium rounded-full bg-red-500/90 text-white font-space-grotesk">
+                  Contributor
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Content */}
           <div className="p-6 md:p-8">
@@ -143,7 +80,7 @@ const ProjectsSection: FC = () => {
                 {project.title}
               </h3>
               <div className="flex items-center gap-3 shrink-0">
-                {project.githubLinks.map((link, i) => (
+                {githubLinks.map((link, i) => (
                   <Link
                     key={i}
                     href={link.href}
@@ -176,7 +113,7 @@ const ProjectsSection: FC = () => {
               <span className="text-xs text-muted-foreground font-space-grotesk">
                 Built with:
               </span>
-              {project.techStack.map((tech, i) => (
+              {techStack.map((tech, i) => (
                 <span
                   key={i}
                   className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground font-space-grotesk"

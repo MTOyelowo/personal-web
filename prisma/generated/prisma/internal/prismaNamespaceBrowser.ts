@@ -60,7 +60,13 @@ export const ModelName = {
   Collection: 'Collection',
   CollectionItem: 'CollectionItem',
   DailyWord: 'DailyWord',
-  DailyWordBackground: 'DailyWordBackground'
+  DailyWordBackground: 'DailyWordBackground',
+  AboutContent: 'AboutContent',
+  Skill: 'Skill',
+  Project: 'Project',
+  WorkExperience: 'WorkExperience',
+  AboutInfoItem: 'AboutInfoItem',
+  SocialLink: 'SocialLink'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -221,12 +227,105 @@ export const DailyWordBackgroundScalarFieldEnum = {
 export type DailyWordBackgroundScalarFieldEnum = (typeof DailyWordBackgroundScalarFieldEnum)[keyof typeof DailyWordBackgroundScalarFieldEnum]
 
 
+export const AboutContentScalarFieldEnum = {
+  id: 'id',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  subtitle: 'subtitle',
+  bio: 'bio',
+  poemLines: 'poemLines',
+  cvUrl: 'cvUrl',
+  cvBlobPath: 'cvBlobPath',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AboutContentScalarFieldEnum = (typeof AboutContentScalarFieldEnum)[keyof typeof AboutContentScalarFieldEnum]
+
+
+export const SkillScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  items: 'items',
+  order: 'order',
+  aboutContentId: 'aboutContentId'
+} as const
+
+export type SkillScalarFieldEnum = (typeof SkillScalarFieldEnum)[keyof typeof SkillScalarFieldEnum]
+
+
+export const ProjectScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  image: 'image',
+  imageBlobPath: 'imageBlobPath',
+  liveUrl: 'liveUrl',
+  githubLinks: 'githubLinks',
+  techStack: 'techStack',
+  contributor: 'contributor',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const WorkExperienceScalarFieldEnum = {
+  id: 'id',
+  company: 'company',
+  position: 'position',
+  dateRange: 'dateRange',
+  descriptions: 'descriptions',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkExperienceScalarFieldEnum = (typeof WorkExperienceScalarFieldEnum)[keyof typeof WorkExperienceScalarFieldEnum]
+
+
+export const AboutInfoItemScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  value: 'value',
+  href: 'href',
+  iconKey: 'iconKey',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AboutInfoItemScalarFieldEnum = (typeof AboutInfoItemScalarFieldEnum)[keyof typeof AboutInfoItemScalarFieldEnum]
+
+
+export const SocialLinkScalarFieldEnum = {
+  id: 'id',
+  platform: 'platform',
+  href: 'href',
+  iconKey: 'iconKey',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SocialLinkScalarFieldEnum = (typeof SocialLinkScalarFieldEnum)[keyof typeof SocialLinkScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -243,4 +342,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

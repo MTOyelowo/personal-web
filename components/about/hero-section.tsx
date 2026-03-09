@@ -2,8 +2,10 @@
 
 import { useRef, useEffect, useState } from "react";
 import { FiDownload } from "react-icons/fi";
+import { useAboutContent } from "@/hooks/query/useAbout";
+import Spinner from "@/components/ui/spinner";
 
-const poemLines = [
+const fallbackPoemLines = [
   "I am like bamboo. I am like gold. I am like diamond",
   "I am like the rock underneath the waterfall",
   "I am a dreamer just like everyone else",
@@ -15,7 +17,7 @@ const poemLines = [
   "A Nomad of Dreams",
 ];
 
-const skills = [
+const fallbackSkills = [
   {
     label: "Frontend Engineering",
     items: ["JavaScript", "TypeScript", "React", "React Native", "Next.js"],
@@ -32,6 +34,7 @@ export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [focusedLines, setFocusedLines] = useState<number[]>([]);
   const [expandedSkill, setExpandedSkill] = useState<number | null>(null);
+  const { data: about, isLoading } = useAboutContent();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,6 +58,29 @@ export default function HeroSection() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  if (isLoading) {
+    return (
+      <section className="flex items-center justify-center py-24">
+        <Spinner size={28} />
+      </section>
+    );
+  }
+
+  const firstName = about?.firstName || "Mayowa Taofeeq";
+  const lastName = about?.lastName || "OYELOWO";
+  const bio =
+    about?.bio ||
+    "A Nomad of Dreams, seeking to bring about positive change through Software, Writing, and Fashion.";
+  const poemLines =
+    about?.poemLines && about.poemLines.length > 0
+      ? about.poemLines
+      : fallbackPoemLines;
+  const skills =
+    about?.skills && about.skills.length > 0
+      ? about.skills.map((s) => ({ label: s.label, items: s.items }))
+      : fallbackSkills;
+  const cvUrl = about?.cvUrl || "/cv/mayowa-taofeeq-oyelowo-resume.pdf";
+
   return (
     <section className="relative overflow-hidden">
       {/* Decorative blobs */}
@@ -66,10 +92,10 @@ export default function HeroSection() {
         {/* Name */}
         <div className="flex flex-col items-center">
           <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground font-space-grotesk">
-            Mayowa Taofeeq
+            {firstName}
           </p>
           <h1 className="text-7xl sm:text-8xl md:text-9xl font-bold tracking-tight text-foreground font-space-grotesk mt-2">
-            OYELOWO
+            {lastName}
           </h1>
         </div>
 
@@ -78,11 +104,10 @@ export default function HeroSection() {
           {/* Bio */}
           <div className="md:w-1/2">
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-space-grotesk">
-              A Nomad of Dreams, seeking to bring about positive change through
-              Software, Writing, and Fashion.
+              {bio}
             </p>
             <a
-              href="/cv/mayowa-taofeeq-oyelowo-resume.pdf"
+              href={cvUrl}
               download
               className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 rounded-full border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors font-space-grotesk"
             >

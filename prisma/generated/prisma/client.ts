@@ -89,3 +89,33 @@ export type DailyWord = Prisma.DailyWordModel
  * 
  */
 export type DailyWordBackground = Prisma.DailyWordBackgroundModel
+/**
+ * Model AboutContent
+ * 
+ */
+export type AboutContent = Prisma.AboutContentModel
+/**
+ * Model Skill
+ * 
+ */
+export type Skill = Prisma.SkillModel
+/**
+ * Model Project
+ * 
+ */
+export type Project = Prisma.ProjectModel
+/**
+ * Model WorkExperience
+ * 
+ */
+export type WorkExperience = Prisma.WorkExperienceModel
+/**
+ * Model AboutInfoItem
+ * 
+ */
+export type AboutInfoItem = Prisma.AboutInfoItemModel
+/**
+ * Model SocialLink
+ * 
+ */
+export type SocialLink = Prisma.SocialLinkModel

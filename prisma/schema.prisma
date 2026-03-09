@@ -206,3 +206,90 @@ model DailyWordBackground {
   @@index([dailyWordId])
   @@map("daily_word_backgrounds")
 }
+
+// ── About / Portfolio ───────────────────────────────────────
+
+model AboutContent {
+  id            String    @id @default(uuid()) @db.Uuid
+  firstName     String    @default("")
+  lastName      String    @default("")
+  subtitle      String    @default("")   @db.Text
+  bio           String    @default("")   @db.Text
+  poemLines     String[]
+  cvUrl         String?
+  cvBlobPath    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  skills        Skill[]
+
+  @@map("about_content")
+}
+
+model Skill {
+  id             String    @id @default(uuid()) @db.Uuid
+  label          String
+  items          String[]
+  order          Int       @default(0)
+  aboutContentId String    @db.Uuid
+
+  aboutContent   AboutContent @relation(fields: [aboutContentId], references: [id], onDelete: Cascade)
+
+  @@index([aboutContentId])
+  @@map("skills")
+}
+
+model Project {
+  id              String    @id @default(uuid()) @db.Uuid
+  title           String
+  description     String    @db.Text
+  image           String?
+  imageBlobPath   String?
+  liveUrl         String    @default("")
+  githubLinks     Json      @default("[]")
+  techStack       Json      @default("[]")
+  contributor     Boolean   @default(false)
+  order           Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("projects")
+}
+
+model WorkExperience {
+  id            String    @id @default(uuid()) @db.Uuid
+  company       String
+  position      String
+  dateRange     String
+  descriptions  String[]
+  order         Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("work_experiences")
+}
+
+model AboutInfoItem {
+  id        String    @id @default(uuid()) @db.Uuid
+  label     String
+  value     String
+  href      String?
+  iconKey   String    @default("mail")
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("about_info_items")
+}
+
+model SocialLink {
+  id        String    @id @default(uuid()) @db.Uuid
+  platform  String
+  href      String
+  iconKey   String    @default("github")
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("social_links")
+}

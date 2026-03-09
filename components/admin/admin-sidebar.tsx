@@ -13,6 +13,7 @@ import {
   FiChevronRight,
   FiLogOut,
   FiHome,
+  FiUser,
 } from "react-icons/fi";
 import Logo from "@/components/ui/logo";
 
@@ -36,6 +37,11 @@ const navItems: NavItem[] = [
     icon: <FiFolder size={20} />,
   },
   { label: "Categories", href: "/admin/categories", icon: <FiTag size={20} /> },
+  {
+    label: "About",
+    href: "/admin/about",
+    icon: <FiUser size={20} />,
+  },
 ];
 
 interface AdminSidebarProps {
