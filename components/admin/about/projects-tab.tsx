@@ -14,6 +14,7 @@ import {
   FieldRow,
 } from "@/components/admin/form-field";
 import { useCrudState } from "@/hooks/common/useCrudState";
+import { useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
@@ -56,6 +57,7 @@ const emptyForm: ProjectForm = {
 /* ── Component ────────────────────────────────────────────── */
 
 const ProjectsTab: FC = () => {
+  const queryClient = useQueryClient();
   const { data: projects, isLoading } = useProjects();
   const createMutation = useCreateProject();
   const updateMutation = useUpdateProject();
@@ -150,19 +152,29 @@ const ProjectsTab: FC = () => {
     if (!editing || isNew) return;
 
     const existingCount = editingProject?.images?.length ?? 0;
-
-    for (let i = 0; i < files.length; i++) {
-      try {
-        await uploadImageMutation.mutateAsync({
+    const uploads = Array.from(files).map((file, i) =>
+      uploadImageMutation
+        .mutateAsync({
           projectId: editing,
-          file: files[i],
+          file,
           order: existingCount + i,
-        });
-        toast.success(`Uploaded "${files[i].name}"`);
-      } catch {
-        toast.error(`Failed to upload "${files[i].name}"`);
-      }
+        })
+        .then(() => ({ name: file.name, ok: true as const }))
+        .catch(() => ({ name: file.name, ok: false as const })),
+    );
+
+    const results = await Promise.all(uploads);
+
+    const succeeded = results.filter((r) => r.ok).length;
+    const failed = results.filter((r) => !r.ok);
+
+    if (succeeded > 0) {
+      toast.success(`Uploaded ${succeeded} image${succeeded > 1 ? "s" : ""}`);
     }
+    failed.forEach((r) => toast.error(`Failed to upload "${r.name}"`));
+
+    // Invalidate once after all uploads complete
+    queryClient.invalidateQueries({ queryKey: ["about", "projects"] });
   };
 
   const handleDeleteImage = async () => {

@@ -196,7 +196,6 @@ export const useDeleteProject = () => {
 // ── Project Images ──────────────────────────────────────────
 
 export const useUploadProjectImage = () => {
-  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
       projectId,
@@ -220,7 +219,7 @@ export const useUploadProjectImage = () => {
       );
       return res.data.data as ProjectImageData;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["about", "projects"] }),
+    onSuccess: () => {},
   });
 };
 
