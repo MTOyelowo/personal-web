@@ -5,6 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useScrollDirection } from "@/hooks/common/useScrollDirection";
 
 interface NavItem {
   label: string;
@@ -21,6 +22,7 @@ const typeStyles: Record<NavItem["type"], string> = {
 
 export default function ScrollingSecondaryNav() {
   const pathname = usePathname();
+  const { isVisible } = useScrollDirection({ threshold: 10, hideDelay: 3000 });
   const { data: items } = useQuery<NavItem[]>({
     queryKey: ["nav-items"],
     queryFn: async () => {
@@ -62,7 +64,9 @@ export default function ScrollingSecondaryNav() {
 
   return (
     <nav
-      className="relative w-full overflow-hidden bg-muted/40 border-b border-border"
+      className={`sticky top-0 z-30 w-full overflow-hidden bg-muted/40 border-b border-border transition-transform duration-300 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
       aria-label="Explore topics"
       onMouseEnter={() => {
         pausedRef.current = true;

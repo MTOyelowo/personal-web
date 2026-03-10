@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useScrollDirection } from "@/hooks/common/useScrollDirection";
 
 const SECTIONS = [
   { id: "hero", label: "Intro" },
@@ -13,6 +14,7 @@ const SECTIONS = [
 
 export default function AboutSectionNav() {
   const [activeId, setActiveId] = useState<string>("hero");
+  const { isVisible } = useScrollDirection({ threshold: 10, hideDelay: 3000 });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -46,7 +48,9 @@ export default function AboutSectionNav() {
 
   return (
     <nav
-      className="sticky top-14 z-30 w-full bg-background/80 backdrop-blur-md border-b border-border"
+      className={`sticky top-0 z-30 w-full bg-background/80 backdrop-blur-md border-b border-border transition-transform duration-300 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
       aria-label="About page sections"
     >
       <div className="max-w-4xl mx-auto flex items-center gap-1 px-4 py-2 overflow-x-auto scrollbar-hide">

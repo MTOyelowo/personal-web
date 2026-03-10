@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
+import { useScrollDirection } from "@/hooks/common/useScrollDirection";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -26,6 +27,7 @@ const Header: FC = (): JSX.Element => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const { isVisible } = useScrollDirection({ threshold: 10, hideDelay: 3000 });
 
   const isAuth = status === "authenticated";
   const user = session?.user;
@@ -87,7 +89,11 @@ const Header: FC = (): JSX.Element => {
   }, []);
 
   return (
-    <header className="flex w-full h-[57px] items-center justify-between px-[25px] font-space-grotesk bg-background">
+    <header
+      className={`sticky top-0 z-50 flex w-full h-[57px] items-center justify-between px-[25px] font-space-grotesk bg-background border-b border-border transition-transform duration-300 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
       {/* Left: Logo */}
       <div className="flex items-center">
         <Logo />
