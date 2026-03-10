@@ -32,11 +32,15 @@ export function useScrollDirection(
 ): ScrollDirectionState {
   const { threshold = 10, hideDelay = 3000 } = options;
 
-  const [state, setState] = useState<ScrollDirectionState>({
-    direction: null,
-    isVisible: true,
-    isAtTop: true,
-    scrollY: 0,
+  const [state, setState] = useState<ScrollDirectionState>(() => {
+    // Initialize with actual scroll position (handles SSR by defaulting to top)
+    const scrollY = typeof window !== "undefined" ? window.scrollY : 0;
+    return {
+      direction: null,
+      isVisible: true,
+      isAtTop: scrollY < 5,
+      scrollY,
+    };
   });
 
   const lastScrollY = useRef(0);
@@ -120,13 +124,8 @@ export function useScrollDirection(
       }
     };
 
-    // Initialize
+    // Initialize lastScrollY ref
     lastScrollY.current = window.scrollY;
-    setState((prev) => ({
-      ...prev,
-      isAtTop: window.scrollY < 5,
-      scrollY: window.scrollY,
-    }));
 
     window.addEventListener("scroll", onScroll, { passive: true });
 
