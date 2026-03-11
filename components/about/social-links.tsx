@@ -43,9 +43,9 @@ const SocialLinks: FC = () => {
 
   return (
     <section id="social-links" className="py-12 px-4 bg-muted/30">
-      <div className="w-full lg:max-w-4xl mx-auto overflow-x-auto">
+      <div className="w-full lg:max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-8">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
             {links.map((link) => {
               const Icon = iconMap[link.iconKey] ?? FiGlobe;
               return (
