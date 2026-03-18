@@ -15,7 +15,7 @@ const TagsList: FC = (): JSX.Element => {
     queryKey: ["tags"],
     queryFn: async () => {
       const res = await axios.get("/api/tags");
-      return res.data.data;
+      return (res.data.data as Tag[]).slice(0, 15);
     },
     staleTime: 5 * 60 * 1000,
   });
