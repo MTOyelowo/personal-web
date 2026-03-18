@@ -1,44 +1,42 @@
-import type { FC, JSX } from "react";
+"use client";
 
-const tags = [
-  { name: "Technology", href: "/technology" },
-  { name: "Open", href: "/open" },
-  { name: "Source", href: "/source" },
-  { name: "JavaScript", href: "/javascript" },
-  { name: "Minimalism", href: "/minimalism" },
-  { name: "Self-help", href: "/self-help" },
-  { name: "Animals", href: "/animals" },
-  { name: "Herbivores", href: "/herbivores" },
-  { name: "HTML", href: "/html" },
-  { name: "CSS", href: "/css" },
-  { name: "PHP", href: "/php" },
-  { name: "Web", href: "/web" },
-  { name: "Technologies", href: "/technologies" },
-  { name: "Career", href: "/career" },
-  { name: "Life", href: "/life" },
-  { name: "Spirituality", href: "/spirituality" },
-  { name: "Food", href: "/food" },
-  { name: "Cooking", href: "/cooking" },
-  { name: "Sports", href: "/sports" },
-  { name: "Racing", href: "/racing" },
-  { name: "Mountain", href: "/mountain" },
-  { name: "Hiking", href: "/hiking" },
-  { name: "Cruising", href: "/cruising" },
-];
+import type { FC, JSX } from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import Link from "next/link";
+
+interface Tag {
+  name: string;
+  count: number;
+}
 
 const TagsList: FC = (): JSX.Element => {
+  const { data: tags } = useQuery<Tag[]>({
+    queryKey: ["tags"],
+    queryFn: async () => {
+      const res = await axios.get("/api/tags");
+      return res.data.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  if (!tags || tags.length === 0) return <></>;
+
   return (
     <div className="flex flex-col gap-[3px]">
       <h1 className="font-bold text-lg lg:text-xl text-foreground">tags</h1>
       <ul className="flex flex-row flex-wrap lg:flex-col gap-2 sm:gap-3 lg:gap-4 text-sm lg:text-base text-foreground">
-        {tags.map((item, index) => (
-          <li key={index}>
-            <a
-              href={item.href}
+        {tags.map((tag) => (
+          <li key={tag.name}>
+            <Link
+              href={`/tags/${encodeURIComponent(tag.name)}`}
               className="hover:text-muted-foreground transition-colors"
             >
-              {item.name}
-            </a>
+              {tag.name}
+              <span className="ml-1 text-xs text-muted-foreground">
+                ({tag.count})
+              </span>
+            </Link>
           </li>
         ))}
       </ul>

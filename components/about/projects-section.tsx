@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useCallback, useEffect } from "react";
+import { FC, useState, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -28,6 +28,7 @@ const RichTextViewer = dynamic(
 
 const ProjectsSection: FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
   const { data: projects, isLoading } = useProjects();
 
   if (isLoading) {
@@ -47,12 +48,17 @@ const ProjectsSection: FC = () => {
   const techStack = project.techStack as ProjectTechItem[];
   const images = project.images ?? [];
 
+  const switchProject = (index: number) => {
+    setCurrentIndex(index);
+    cardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  };
+
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? projects.length - 1 : prev - 1));
+    switchProject(currentIndex === 0 ? projects!.length - 1 : currentIndex - 1);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === projects.length - 1 ? 0 : prev + 1));
+    switchProject(currentIndex === projects!.length - 1 ? 0 : currentIndex + 1);
   };
 
   return (
@@ -66,7 +72,10 @@ const ProjectsSection: FC = () => {
         </div>
 
         {/* Project card */}
-        <div className="rounded-2xl overflow-hidden border border-border bg-card">
+        <div
+          ref={cardRef}
+          className="rounded-2xl overflow-hidden border border-border bg-card"
+        >
           {/* Image Gallery */}
           {images.length > 0 && (
             <ImageGallery
@@ -149,7 +158,7 @@ const ProjectsSection: FC = () => {
             {projects.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setCurrentIndex(i)}
+                onClick={() => switchProject(i)}
                 className={`w-2 h-2 rounded-full transition-all duration-200 ${
                   i === currentIndex
                     ? "bg-foreground w-6"
@@ -186,14 +195,24 @@ function ImageGallery({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+
+  const switchImage = useCallback(
+    (index: number) => {
+      if (index === activeIndex) return;
+      setImageLoading(true);
+      setActiveIndex(index);
+    },
+    [activeIndex],
+  );
 
   const handlePrevImage = useCallback(() => {
-    setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  }, [images.length]);
+    switchImage(activeIndex === 0 ? images.length - 1 : activeIndex - 1);
+  }, [activeIndex, images.length, switchImage]);
 
   const handleNextImage = useCallback(() => {
-    setActiveIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  }, [images.length]);
+    switchImage(activeIndex === images.length - 1 ? 0 : activeIndex + 1);
+  }, [activeIndex, images.length, switchImage]);
 
   // Keyboard navigation when lightbox is open
   useEffect(() => {
@@ -218,12 +237,24 @@ function ImageGallery({
       {/* Main image */}
       <div className="relative w-full aspect-video bg-muted">
         <Image
+          key={activeImage.id}
           src={activeImage.url}
           alt={activeImage.alt || projectTitle}
           fill
-          className="object-cover transition-opacity duration-300"
+          className={`object-cover transition-opacity duration-300 ${imageLoading ? "opacity-40" : "opacity-100"}`}
           sizes="(max-width: 768px) 100vw, 896px"
+          onLoad={() => setImageLoading(false)}
         />
+
+        {/* Loading overlay */}
+        {imageLoading && (
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_ease-in-out_infinite]" />
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted-foreground/20 overflow-hidden rounded-full">
+              <div className="h-full bg-foreground/60 rounded-full animate-[progress_1.2s_ease-in-out_infinite]" />
+            </div>
+          </div>
+        )}
 
         {/* Click to expand */}
         <button
@@ -274,7 +305,7 @@ function ImageGallery({
           {images.map((img, i) => (
             <button
               key={img.id}
-              onClick={() => setActiveIndex(i)}
+              onClick={() => switchImage(i)}
               className={`relative w-14 h-10 rounded overflow-hidden shrink-0 transition-all ${
                 i === activeIndex
                   ? "ring-2 ring-foreground opacity-100"
@@ -350,13 +381,23 @@ function ImageGallery({
             onClick={(e) => e.stopPropagation()}
           >
             <Image
+              key={activeImage.id}
               src={activeImage.url}
               alt={activeImage.alt || projectTitle}
               fill
-              className="object-contain"
+              className={`object-contain transition-opacity duration-300 ${imageLoading ? "opacity-40" : "opacity-100"}`}
               sizes="90vw"
               priority
+              onLoad={() => setImageLoading(false)}
             />
+            {imageLoading && (
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 overflow-hidden rounded-full">
+                  <div className="h-full bg-white/60 rounded-full animate-[progress_1.2s_ease-in-out_infinite]" />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Thumbnail strip */}
@@ -368,7 +409,7 @@ function ImageGallery({
               {images.map((img, i) => (
                 <button
                   key={img.id}
-                  onClick={() => setActiveIndex(i)}
+                  onClick={() => switchImage(i)}
                   className={`relative w-16 h-12 rounded-lg overflow-hidden shrink-0 transition-all cursor-pointer ${
                     i === activeIndex
                       ? "ring-2 ring-white opacity-100"

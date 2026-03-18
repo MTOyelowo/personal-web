@@ -100,6 +100,31 @@ body {
   height: auto;
 }
 
+/* ── Image loading animations ── */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+    margin-left: 0%;
+  }
+  50% {
+    width: 60%;
+    margin-left: 20%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
+
 .tiptap-editor iframe {
   width: 100%;
   border-radius: 0.5rem;
