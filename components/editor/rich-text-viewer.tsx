@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -79,6 +79,13 @@ const RichTextViewer: FC<Props> = ({ content, className = "" }) => {
     },
     immediatelyRender: false,
   });
+
+  // Sync content when the prop changes (useEditor only uses content for initial creation)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   if (!editor) return null;
 
