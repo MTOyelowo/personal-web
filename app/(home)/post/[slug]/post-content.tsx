@@ -229,9 +229,9 @@ export default function PostContent() {
         />
 
         {/* Like */}
-        <span className="ml-auto pt-10">
+        <div className="ml-auto pt-10">
           <LikeButton postId={post.id} />
-        </span>
+        </div>
 
         {/* Comments */}
         <CommentSection postId={post.id} />
