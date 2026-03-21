@@ -229,7 +229,7 @@ export default function PostContent() {
         />
 
         {/* Like */}
-        <span className="ml-auto mt-10">
+        <span className="ml-auto pt-10">
           <LikeButton postId={post.id} />
         </span>
 
