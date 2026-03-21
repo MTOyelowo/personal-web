@@ -190,7 +190,7 @@ const Header: FC = (): JSX.Element => {
             </div>
           ) : (
             <Link
-              href="/auth/signin"
+              href={`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`}
               className="border-2 border-border w-[135px] h-[46px] rounded-[10px] flex items-center justify-center text-sm font-medium hover:bg-muted transition-colors"
             >
               Login
@@ -253,7 +253,7 @@ const Header: FC = (): JSX.Element => {
               </>
             ) : (
               <Link
-                href="/auth/signin"
+                href={`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`}
                 className="border-2 border-border w-[135px] h-[46px] rounded-[10px] mt-4 flex items-center justify-center text-sm font-medium"
                 onClick={toggleMenu}
               >

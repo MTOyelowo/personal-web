@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { FiHeart } from "react-icons/fi";
 import { usePostLikeStatus, useTogglePostLike } from "@/hooks/query/useLikes";
 import Link from "next/link";
@@ -11,6 +12,7 @@ interface LikeButtonProps {
 
 export default function LikeButton({ postId }: LikeButtonProps) {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const userId = session?.user?.id;
 
   const { data: likeStatus } = usePostLikeStatus(postId, userId);
@@ -30,7 +32,7 @@ export default function LikeButton({ postId }: LikeButtonProps) {
         <FiHeart size={18} />
         <span>{count}</span>
         <Link
-          href="/auth/signin"
+          href={`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`}
           className="text-xs underline hover:text-foreground transition-colors ml-1"
         >
           Sign in to like

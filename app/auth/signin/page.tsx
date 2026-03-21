@@ -2,7 +2,7 @@
 
 import { FC } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AiFillGoogleCircle } from "react-icons/ai";
 import Link from "next/link";
 import Logo from "@/components/ui/logo";
@@ -10,6 +10,8 @@ import Logo from "@/components/ui/logo";
 const SignInPage: FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   // Loading state
   if (status === "loading") {
@@ -22,20 +24,19 @@ const SignInPage: FC = () => {
     );
   }
 
-  // Already authenticated — redirect
+  // Already authenticated — redirect back to where they came from
   if (session) {
     const isAdmin = (session.user as { role?: string })?.role === "ADMIN";
+    const redirectTo = isAdmin ? "/admin" : callbackUrl;
     setTimeout(() => {
-      router.push(isAdmin ? "/admin" : "/");
+      router.push(redirectTo);
     }, 1500);
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-muted font-space-grotesk gap-3">
         <p className="text-lg text-green-600 dark:text-green-400 animate-pulse font-medium">
           Sign in successful
         </p>
-        <p className="text-sm text-muted-foreground">
-          Redirecting to {isAdmin ? "dashboard" : "home"}...
-        </p>
+        <p className="text-sm text-muted-foreground">Redirecting...</p>
       </div>
     );
   }
@@ -58,7 +59,7 @@ const SignInPage: FC = () => {
 
         {/* Google Sign In */}
         <button
-          onClick={() => signIn("google", { callbackUrl: "/" })}
+          onClick={() => signIn("google", { callbackUrl })}
           className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-card border-2 border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
         >
           <AiFillGoogleCircle size={22} className="text-red-500" />

@@ -2,6 +2,7 @@
 
 import { useState, type FC } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useCreateComment } from "@/hooks/query/useComments";
 import toast from "react-hot-toast";
@@ -22,6 +23,7 @@ const CommentForm: FC<CommentFormProps> = ({
   autoFocus = false,
 }) => {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [content, setContent] = useState("");
   const createComment = useCreateComment(postId);
 
@@ -29,7 +31,7 @@ const CommentForm: FC<CommentFormProps> = ({
     return (
       <div className="rounded-lg border border-border bg-muted/30 p-4 text-center text-sm text-muted-foreground">
         <Link
-          href="/auth/signin"
+          href={`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`}
           className="text-foreground underline hover:text-muted-foreground transition-colors"
         >
           Sign in
