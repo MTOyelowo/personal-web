@@ -228,6 +228,14 @@ export default function PostContent() {
           className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400"
         />
 
+        {/* Like */}
+        <span className="ml-auto mt-5">
+          <LikeButton postId={post.id} />
+        </span>
+
+        {/* Comments */}
+        <CommentSection postId={post.id} />
+
         {/* Tags & Like */}
         <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-border">
           {post.tags.length > 0 && (
@@ -244,13 +252,7 @@ export default function PostContent() {
               ))}
             </>
           )}
-          <span className="ml-auto">
-            <LikeButton postId={post.id} />
-          </span>
         </div>
-
-        {/* Comments */}
-        <CommentSection postId={post.id} />
 
         {/* Collection: Previous / Next navigation */}
         {isInCollection && collectionData && (
