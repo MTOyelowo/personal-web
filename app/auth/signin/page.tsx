@@ -1,13 +1,13 @@
 "use client";
 
-import { FC } from "react";
+import { FC, Suspense } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AiFillGoogleCircle } from "react-icons/ai";
 import Link from "next/link";
 import Logo from "@/components/ui/logo";
 
-const SignInPage: FC = () => {
+const SignInContent: FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -85,6 +85,22 @@ const SignInPage: FC = () => {
         </p>
       </div>
     </div>
+  );
+};
+
+const SignInPage: FC = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen bg-muted font-space-grotesk">
+          <p className="text-lg text-muted-foreground animate-pulse">
+            Loading...
+          </p>
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 };
 
