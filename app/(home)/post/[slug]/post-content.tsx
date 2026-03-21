@@ -13,6 +13,8 @@ import PostShareButton from "@/components/common/post-share-button";
 import CollectionNav from "@/components/common/collection-nav";
 import CollectionTray from "@/components/common/collection-tray";
 import RelatedPosts from "@/components/common/related-posts";
+import LikeButton from "@/components/common/like-button";
+import CommentSection from "@/components/common/comment-section";
 import type { CollectionData } from "@/components/common/collection-types";
 import dynamic from "next/dynamic";
 
@@ -226,21 +228,29 @@ export default function PostContent() {
           className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400"
         />
 
-        {/* Tags */}
-        {post.tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-border">
-            <FiTag size={14} className="text-muted-foreground" />
-            {post.tags.map((tag) => (
-              <Link
-                key={tag}
-                href={`/tags/${encodeURIComponent(tag)}`}
-                className="px-3 py-1 text-xs font-medium bg-muted text-muted-foreground rounded-full hover:bg-muted/80 transition-colors"
-              >
-                {tag}
-              </Link>
-            ))}
-          </div>
-        )}
+        {/* Tags & Like */}
+        <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-border">
+          {post.tags.length > 0 && (
+            <>
+              <FiTag size={14} className="text-muted-foreground" />
+              {post.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/tags/${encodeURIComponent(tag)}`}
+                  className="px-3 py-1 text-xs font-medium bg-muted text-muted-foreground rounded-full hover:bg-muted/80 transition-colors"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </>
+          )}
+          <span className="ml-auto">
+            <LikeButton postId={post.id} />
+          </span>
+        </div>
+
+        {/* Comments */}
+        <CommentSection postId={post.id} />
 
         {/* Collection: Previous / Next navigation */}
         {isInCollection && collectionData && (
