@@ -13,6 +13,7 @@ interface PostShareButtonProps {
   title: string;
   slug: string;
   meta?: string;
+  thumbnailUrl?: string | null;
 }
 
 const SITE_URL = "https://tmoyelowo.com";
@@ -21,6 +22,7 @@ export default function PostShareButton({
   title,
   slug,
   meta,
+  thumbnailUrl,
 }: PostShareButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -75,12 +77,32 @@ export default function PostShareButton({
 
   const handleNativeShare = useCallback(async () => {
     try {
-      await navigator.share({ title, text: shareText, url: postUrl });
+      const shareData: ShareData = { title, text: shareText, url: postUrl };
+
+      // Attempt to attach the thumbnail image to the share tray
+      if (thumbnailUrl) {
+        try {
+          const response = await fetch(thumbnailUrl);
+          const blob = await response.blob();
+          const ext = blob.type.split("/")[1] || "jpg";
+          const file = new File([blob], `thumbnail.${ext}`, {
+            type: blob.type,
+          });
+          const withFiles = { ...shareData, files: [file] };
+          if (navigator.canShare?.(withFiles)) {
+            shareData.files = [file];
+          }
+        } catch {
+          // Image fetch failed — share without the image
+        }
+      }
+
+      await navigator.share(shareData);
     } catch {
       // User cancelled or share failed — just open the menu instead
       setIsOpen(true);
     }
-  }, [title, shareText, postUrl]);
+  }, [title, shareText, postUrl, thumbnailUrl]);
 
   const handleToggle = useCallback(() => {
     if (
