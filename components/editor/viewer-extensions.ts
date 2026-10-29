@@ -3,6 +3,7 @@ import Youtube from "@tiptap/extension-youtube";
 import Image from "@tiptap/extension-image";
 import Superscript from "@tiptap/extension-superscript";
 import Subscript from "@tiptap/extension-subscript";
+import { Scene, SceneDocument } from "./extensions/scene";
 
 /**
  * Extensions for rendering stored post HTML read-only. Shared by the client
@@ -10,7 +11,10 @@ import Subscript from "@tiptap/extension-subscript";
  * StarterKit v3 already bundles Link and Underline, so they are configured here.
  */
 export const viewerExtensions = [
+  SceneDocument,
+  Scene,
   StarterKit.configure({
+    document: false,
     bulletList: { HTMLAttributes: { class: "list-disc ml-4" } },
     orderedList: { HTMLAttributes: { class: "list-decimal ml-4" } },
     code: {

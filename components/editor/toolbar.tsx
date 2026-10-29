@@ -12,6 +12,7 @@ import {
   BsBlockquoteLeft,
   BsCode,
   BsCodeSquare,
+  BsFilm,
 } from "react-icons/bs";
 import { RiSuperscript, RiSubscript } from "react-icons/ri";
 import { getFocusedEditor } from "./editor-utils";
@@ -66,6 +67,20 @@ const Toolbar: FC<Props> = ({ editor, onOpenGallery }) => {
 
   const handleYoutubeSubmit = (url: string) => {
     editor.commands.setYoutubeVideo({ src: url });
+  };
+
+  const handleSceneToggle = () => {
+    if (editor.isActive("scene")) {
+      getFocusedEditor(editor).unsetScene().run();
+      return;
+    }
+    let scenes = 0;
+    editor.state.doc.forEach((node) => {
+      if (node.type.name === "scene") scenes++;
+    });
+    getFocusedEditor(editor)
+      .setScene({ cue: `scene-${scenes + 1}` })
+      .run();
   };
 
   return (
@@ -152,6 +167,17 @@ const Toolbar: FC<Props> = ({ editor, onOpenGallery }) => {
         title="Code Block"
       >
         <BsCodeSquare />
+      </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive("scene")}
+        onClick={handleSceneToggle}
+        title={
+          editor.isActive("scene")
+            ? "Remove scene"
+            : "Scene: wrap the selected paragraphs"
+        }
+      >
+        <BsFilm />
       </ToolbarButton>
 
       <Divider />

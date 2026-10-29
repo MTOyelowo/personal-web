@@ -3,13 +3,13 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Youtube from "@tiptap/extension-youtube";
 import Image from "@tiptap/extension-image";
 import Superscript from "@tiptap/extension-superscript";
 import Subscript from "@tiptap/extension-subscript";
+import { SceneDocument } from "./extensions/scene";
+import { EditorScene } from "./scene/scene-view";
 import Toolbar from "./toolbar";
 import EditLink from "./edit-link";
 import GalleryModal, { ImageSelectionResult } from "./gallery/gallery-modal";
@@ -69,7 +69,10 @@ const Editor: FC<Props> = ({
   };
   const editor = useEditor({
     extensions: [
+      SceneDocument,
+      EditorScene,
       StarterKit.configure({
+        document: false,
         bulletList: { HTMLAttributes: { class: "list-disc ml-4" } },
         orderedList: { HTMLAttributes: { class: "list-decimal ml-4" } },
         code: {
@@ -92,14 +95,14 @@ const Editor: FC<Props> = ({
         heading: {
           HTMLAttributes: { class: "font-bold" },
         },
-      }),
-      Underline,
-      Link.configure({
-        autolink: false,
-        linkOnPaste: false,
-        openOnClick: false,
-        HTMLAttributes: {
-          class: "text-blue-600 underline hover:text-blue-800",
+        // StarterKit v3 bundles Link and Underline
+        link: {
+          autolink: false,
+          linkOnPaste: false,
+          openOnClick: false,
+          HTMLAttributes: {
+            class: "text-blue-600 underline hover:text-blue-800",
+          },
         },
       }),
       Placeholder.configure({ placeholder }),
