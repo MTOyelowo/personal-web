@@ -9,7 +9,10 @@ import {
   BPM_MIN,
   SCENE_EFFECTS,
   SOUND_LAYERS,
+  WEEKDAYS,
+  lightPhase,
   parseBpm,
+  parseDay,
   parseLabel,
   toCueId,
   toLongHex,
@@ -86,7 +89,7 @@ const LevelField: FC<{
         onChange={(e) => onChange(Number(e.target.value))}
         className={`w-full accent-gray-900 ${value === null ? "opacity-40" : ""}`}
       />
-      <span className="w-12 shrink-0 text-right text-gray-700 font-mono">
+      <span className="w-16 shrink-0 text-right text-gray-700 font-mono">
         {value === null ? "Default" : value.toFixed(2)}
       </span>
       {value !== null && (
@@ -167,6 +170,28 @@ const SceneCueForm: FC<Props> = ({ cue, onChange }) => {
             maxLength={40}
             onChange={(e) => onChange({ time: parseLabel(e.target.value, 40) })}
           />
+          <span className="text-gray-400">
+            {lightPhase(cue.time)
+              ? `Light: ${lightPhase(cue.time)}`
+              : "Words like morning, sunset or night also set the light"}
+          </span>
+        </Field>
+        <Field label="Set on a weekday">
+          <select
+            className={inputClass}
+            value={cue.day ?? ""}
+            onChange={(e) => onChange({ day: parseDay(e.target.value) })}
+          >
+            <option value="">Any day</option>
+            {WEEKDAYS.map((d) => (
+              <option key={d} value={d}>
+                {d[0].toUpperCase() + d.slice(1)}
+              </option>
+            ))}
+          </select>
+          <span className="text-gray-400">
+            Read on that day, the scene is warmer
+          </span>
         </Field>
       </Group>
 

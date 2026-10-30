@@ -1,4 +1,16 @@
-import type { SceneCue } from "@/lib/scene-cues";
+import { type LightPhase, type SceneCue, lightPhase } from "@/lib/scene-cues";
+
+/** Where the sun sits and the colour of its light, for each time of day. */
+const SKY: Record<LightPhase, { at: string; color: string }> = {
+  dawn: { at: "0% 35%", color: "rgba(255,200,180,.45)" },
+  morning: { at: "8% 0%", color: "rgba(255,236,190,.45)" },
+  midday: { at: "50% -10%", color: "rgba(255,250,232,.4)" },
+  afternoon: { at: "92% 0%", color: "rgba(255,214,150,.4)" },
+  evening: { at: "100% 30%", color: "rgba(250,180,120,.4)" },
+  sunset: { at: "100% 72%", color: "rgba(240,140,90,.45)" },
+  dusk: { at: "50% 110%", color: "rgba(150,120,180,.4)" },
+  night: { at: "50% -20%", color: "rgba(70,90,140,.35)" },
+};
 
 /** Hex colour (already validated) to rgba(). */
 export function rgba(hex: string, alpha: number): string {
@@ -20,10 +32,19 @@ function seeded(seed: number) {
   };
 }
 
-/** Background for the wash layer: soft colour from three edges, plus beam and glow. */
-export function washBackground(cue: SceneCue): string {
+/**
+ * Background for the wash layer: soft colour from three edges, light from
+ * the time of day, and the beam and glow. `onItsDay` adds a warm light from
+ * above when the reader is reading on the scene's own weekday.
+ */
+export function washBackground(cue: SceneCue, onItsDay = false): string {
   const [a, b, c] = cue.wash;
   const parts: string[] = [];
+  if (onItsDay) {
+    parts.push(
+      "radial-gradient(75% 60% at 50% -5%, rgba(255,205,120,.5) 0%, rgba(255,205,120,0) 70%)",
+    );
+  }
   if (cue.glow) {
     parts.push(
       `radial-gradient(95% 55% at 50% 112%, ${rgba(cue.glow, 0.9)} 0%, ${rgba(cue.glow, 0)} 72%)`,
@@ -33,6 +54,11 @@ export function washBackground(cue: SceneCue): string {
     parts.push(
       "linear-gradient(118deg, rgba(255,246,214,0) 14%, rgba(255,243,205,.75) 30%, rgba(255,246,214,0) 48%)",
     );
+  }
+  const phase = lightPhase(cue.time);
+  if (phase) {
+    const { at, color } = SKY[phase];
+    parts.push(`radial-gradient(85% 70% at ${at}, ${color} 0%, rgba(0,0,0,0) 70%)`);
   }
   if (a) {
     parts.push(`radial-gradient(55% 48% at 6% 14%, ${rgba(a, 1)} 0%, ${rgba(a, 0)} 70%)`);

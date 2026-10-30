@@ -34,13 +34,54 @@ export const SCENE_EFFECTS = [
 
 export type SceneEffect = (typeof SCENE_EFFECTS)[number]["id"];
 
+/** Indexed like Date.getDay(), Sunday first. */
+export const WEEKDAYS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+] as const;
+
+export type Weekday = (typeof WEEKDAYS)[number];
+
+/**
+ * Where the light sits for a time of day. Read from words in the scene's
+ * time label, so "Late morning" or "Sunset, Jos" both work.
+ */
+export const LIGHT_PHASES = [
+  { id: "dawn", words: ["dawn", "sunrise", "daybreak"] },
+  { id: "midday", words: ["late morning", "midday", "noon"] },
+  { id: "morning", words: ["morning"] },
+  { id: "afternoon", words: ["afternoon"] },
+  { id: "sunset", words: ["sunset", "sundown"] },
+  { id: "evening", words: ["evening"] },
+  { id: "dusk", words: ["dusk", "twilight"] },
+  { id: "night", words: ["night", "midnight"] },
+] as const;
+
+export type LightPhase = (typeof LIGHT_PHASES)[number]["id"];
+
+export function lightPhase(time: string | null): LightPhase | null {
+  const t = time?.toLowerCase() ?? "";
+  // Whole words, so "afternoon" is not read as "noon"
+  return (
+    LIGHT_PHASES.find((p) => p.words.some((w) => new RegExp(`\\b${w}\\b`).test(t)))
+      ?.id ?? null
+  );
+}
+
 export interface SceneCue {
   /** Stable id for the scene, e.g. "taxi". */
   cue: string | null;
   /** Short name shown in the score, e.g. "The yellow taxi". */
   name: string | null;
-  /** Time-of-day label, e.g. "Morning, Jos". */
+  /** Time-of-day label, e.g. "Morning, Jos". Also sets the light's angle and warmth. */
   time: string | null;
+  /** Day the scene is set on. Read on that day, the scene is warmer. */
+  day: Weekday | null;
   /** Page background colour. */
   bg: string | null;
   /** Text colour. */
@@ -109,6 +150,11 @@ export function parseLevel(value: string | number | null | undefined) {
   return Math.round(Math.min(1, Math.max(0, n)) * 100) / 100;
 }
 
+export function parseDay(value: string | null | undefined): Weekday | null {
+  const v = value?.trim().toLowerCase();
+  return (WEEKDAYS as readonly string[]).includes(v ?? "") ? (v as Weekday) : null;
+}
+
 export function parseBpm(value: string | number | null | undefined) {
   if (value === null || value === undefined || value === "") return null;
   const n = Math.round(Number(value));
@@ -151,6 +197,7 @@ export function readSceneCue(element: HTMLElement): SceneCue {
     cue: toCueId(d.cue),
     name: parseLabel(d.name),
     time: parseLabel(d.time, 40),
+    day: parseDay(d.day),
     bg: parseHex(d.bg),
     ink: parseHex(d.ink),
     dark: d.dark !== undefined && d.dark !== "false",

@@ -22,6 +22,10 @@ import InsertGloss from "./insert-gloss";
 import EmbedYoutube from "./embed-youtube";
 import { BsImageFill } from "react-icons/bs";
 import { LinkOption } from "./link-form";
+import {
+  PARAGRAPH_VARIANTS,
+  parseVariant,
+} from "./extensions/paragraph-variant";
 
 interface Props {
   editor: Editor | null;
@@ -94,6 +98,26 @@ const Toolbar: FC<Props> = ({ editor, onOpenGallery }) => {
       >
         {headingOptions.map(({ label, value }) => (
           <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+
+      {/* Paragraph style */}
+      <select
+        value={editor.getAttributes("paragraph").variant ?? ""}
+        disabled={!editor.isActive("paragraph")}
+        onChange={(e) =>
+          getFocusedEditor(editor)
+            .setParagraphVariant(parseVariant(e.target.value))
+            .run()
+        }
+        title="Paragraph style"
+        className="text-sm border border-gray-200 rounded-md px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 mr-1 cursor-pointer disabled:opacity-40"
+      >
+        <option value="">Normal</option>
+        {PARAGRAPH_VARIANTS.map(({ id, label }) => (
+          <option key={id} value={id}>
             {label}
           </option>
         ))}

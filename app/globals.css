@@ -135,6 +135,24 @@ body {
   margin: 1.5rem 0;
 }
 
+/* ── Paragraph styles for stories (editor and posts) ── */
+:is(.prose, .tiptap-editor) p[data-variant="chant"] {
+  font-style: italic;
+  padding-left: 1.2em;
+  border-left: 2px solid color-mix(in srgb, currentColor 28%, transparent);
+}
+
+:is(.prose, .tiptap-editor) p[data-variant="shout"] {
+  font-weight: 600;
+}
+
+:is(.prose, .tiptap-editor) p[data-variant="prayer"] {
+  text-align: center;
+  font-style: italic;
+  margin-top: 2.4em;
+  margin-bottom: 2.8em;
+}
+
 .tiptap-editor [data-gloss] {
   text-decoration: underline dotted;
   text-decoration-thickness: 1.5px;

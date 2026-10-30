@@ -4,6 +4,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { mapStory, type StoryMap } from "@/lib/reader/blocks";
 import { SceneSound, describeSound } from "@/lib/reader/sound";
 import { strokeStyle, washBackground } from "@/lib/reader/stage";
+import { WEEKDAYS, type Weekday } from "@/lib/scene-cues";
 import Motes from "./motes";
 import Glosses from "./glosses";
 import ScoreStrip from "./score-strip";
@@ -80,6 +81,8 @@ export default function ImmersiveReader({
   ]);
   const [pulseKey, setPulseKey] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
+  /** The reader's own weekday, known only in the browser. */
+  const [today, setToday] = useState<Weekday | null>(null);
 
   const live = useRef({
     scene: null as number | null,
@@ -102,6 +105,7 @@ export default function ImmersiveReader({
     const story = mapStory(storyRef.current);
     setMap(story);
     setReduceMotion(matchMedia("(prefers-reduced-motion: reduce)").matches);
+    setToday(WEEKDAYS[new Date().getDay()]);
     if (!story.scenes.length) return;
     const stored = readStoredMode();
     if (stored) setMode(stored === "plain" ? "plain" : "immersive");
@@ -125,9 +129,15 @@ export default function ImmersiveReader({
       if (!withStage) return;
       const back = live.current.front === 0 ? 1 : 0;
       live.current.front = back;
+      const onItsDay = c.day !== null && c.day === WEEKDAYS[new Date().getDay()];
       setWash((layers) => {
         const next: [WashLayer, WashLayer] = [{ ...layers[0] }, { ...layers[1] }];
-        next[back] = { background: washBackground(c), opacity: c.washOpacity ?? 0.6 };
+        const opacity = c.washOpacity ?? 0.6;
+        next[back] = {
+          background: washBackground(c, onItsDay),
+          // A scene set to silence keeps its stillness even on its day
+          opacity: onItsDay && opacity > 0 ? Math.min(1, opacity + 0.12) : opacity,
+        };
         next[back === 0 ? 1 : 0].opacity = 0;
         return next;
       });
@@ -307,6 +317,8 @@ export default function ImmersiveReader({
   const hasScenes = scenes.length > 0;
   const started = hasScenes && mode !== "unset";
   const showPrompt = (map ? hasScenes : hasScenesOnServer) && mode === "unset";
+  const todayName = today ? today[0].toUpperCase() + today.slice(1) : null;
+  const storyIsToday = !!today && scenes.some((s) => s.cue.day === today);
   const silent = cue?.effects.includes("silent") ?? false;
   const strokeOpacity = immersive
     ? Math.max(cue?.canvasOpacity ?? 0.2, pulsed ? 0.22 : 0)
@@ -334,6 +346,11 @@ export default function ImmersiveReader({
             scene leaves a stroke of colour behind. Sound is generated in your
             browser and kept low. You can change anything later.
           </p>
+          {storyIsToday && (
+            <p className="text-sm text-foreground mb-4">
+              Today is a {todayName}, like the day in this story.
+            </p>
+          )}
           <div className="flex flex-wrap gap-2 text-sm">
             <button
               type="button"
@@ -418,6 +435,9 @@ export default function ImmersiveReader({
               </span>{" "}
               {cue.name ?? cue.cue ?? "Untitled"}
               {cue.time && <span className="text-muted-foreground"> · {cue.time}</span>}
+              {cue.day && cue.day === today && (
+                <span className="text-muted-foreground"> · {todayName}, like today</span>
+              )}
             </div>
           )}
           <div className="reader-dock-status text-muted-foreground" aria-live="polite">

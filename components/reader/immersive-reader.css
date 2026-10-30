@@ -61,6 +61,21 @@ html.reader-ink .reader-story blockquote {
   border-color: var(--border);
 }
 
+/* Section breaks in a story read as a quiet row of dots */
+.reader-story hr {
+  border: 0;
+  height: auto;
+  margin: 2.8em 0;
+  text-align: center;
+  opacity: 0.45;
+}
+
+.reader-story hr::after {
+  content: "· · ·";
+  letter-spacing: 0.7em;
+  font-size: 15px;
+}
+
 /* ---------- glossed terms ---------- */
 
 .reader-story [data-gloss] {

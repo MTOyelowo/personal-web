@@ -2,6 +2,7 @@ import { Node, mergeAttributes, findParentNode } from "@tiptap/core";
 import {
   type SceneCue,
   parseBpm,
+  parseDay,
   parseEffects,
   parseHex,
   parseLabel,
@@ -71,6 +72,7 @@ export const Scene = Node.create({
       cue: attr("cue", "data-cue", null, toCueId),
       name: attr("name", "data-name", null, (v) => parseLabel(v)),
       time: attr("time", "data-time", null, (v) => parseLabel(v, 40)),
+      day: attr("day", "data-day", null, parseDay),
       bg: attr("bg", "data-bg", null, parseHex),
       ink: attr("ink", "data-ink", null, parseHex),
       dark: attr(

@@ -10,6 +10,7 @@ import Superscript from "@tiptap/extension-superscript";
 import Subscript from "@tiptap/extension-subscript";
 import { SceneDocument } from "./extensions/scene";
 import { Gloss } from "./extensions/gloss";
+import { ParagraphVariant } from "./extensions/paragraph-variant";
 import { EditorScene } from "./scene/scene-view";
 import Toolbar from "./toolbar";
 import EditLink from "./edit-link";
@@ -120,6 +121,7 @@ const Editor: FC<Props> = ({
       Superscript,
       Subscript,
       Gloss,
+      ParagraphVariant,
     ],
     content: value,
     onUpdate: ({ editor }) => {
