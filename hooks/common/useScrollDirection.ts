@@ -16,9 +16,12 @@ interface ScrollDirectionState {
   isVisible: boolean;
   /** Whether user is at the very top of the page */
   isAtTop: boolean;
-  /** Current scroll Y position */
-  scrollY: number;
 }
+
+// Scroll position is deliberately not state: updating it on every frame
+// re-rendered every consumer while scrolling, which stuttered on phones.
+const sameState = (a: ScrollDirectionState, b: ScrollDirectionState) =>
+  a.direction === b.direction && a.isVisible === b.isVisible && a.isAtTop === b.isAtTop;
 
 /**
  * Hook to track scroll direction for auto-hide/show navbar behavior.
@@ -39,9 +42,12 @@ export function useScrollDirection(
       direction: null,
       isVisible: true,
       isAtTop: scrollY < 5,
-      scrollY,
     };
   });
+
+  const update = useCallback((next: ScrollDirectionState) => {
+    setState((prev) => (sameState(prev, next) ? prev : next));
+  }, []);
 
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
@@ -77,12 +83,7 @@ export function useScrollDirection(
       // Always show at top
       if (isAtTop) {
         clearHideTimeout();
-        setState({
-          direction: null,
-          isVisible: true,
-          isAtTop: true,
-          scrollY: currentScrollY,
-        });
+        update({ direction: null, isVisible: true, isAtTop: true });
         lastScrollY.current = currentScrollY;
         ticking.current = false;
         return;
@@ -99,12 +100,7 @@ export function useScrollDirection(
       const direction = diff > 0 ? "down" : "up";
       const isVisible = direction === "up";
 
-      setState({
-        direction,
-        isVisible,
-        isAtTop: false,
-        scrollY: currentScrollY,
-      });
+      update({ direction, isVisible, isAtTop: false });
 
       // Reset hide timeout when scrolling up (navbar becomes visible)
       if (isVisible) {
@@ -133,7 +129,7 @@ export function useScrollDirection(
       window.removeEventListener("scroll", onScroll);
       clearHideTimeout();
     };
-  }, [threshold, startHideTimeout, clearHideTimeout]);
+  }, [threshold, startHideTimeout, clearHideTimeout, update]);
 
   return state;
 }

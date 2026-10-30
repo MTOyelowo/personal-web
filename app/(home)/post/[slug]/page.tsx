@@ -15,6 +15,7 @@ import LikeButton from "@/components/common/like-button";
 import CommentSection from "@/components/common/comment-section";
 import ImmersiveReader from "@/components/reader/immersive-reader";
 import PoemControls from "@/components/reader/poem-controls";
+import { READ_PARAM, parseReadMode } from "@/lib/reader/read-mode";
 
 const PROSE_CLASSES =
   "prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400";
@@ -142,6 +143,8 @@ export default async function PostPage({ params, searchParams }: PageProps) {
   if (!post) notFound();
 
   const isPoem = post.category.slug === "poetry";
+  // A shared link can carry its reading mode, e.g. ?read=sound
+  const readMode = parseReadMode(getParam(query, READ_PARAM));
   const contentClasses = isPoem ? `${PROSE_CLASSES} poem` : PROSE_CLASSES;
 
   // Determine if this post belongs to a collection
@@ -233,7 +236,6 @@ export default async function PostPage({ params, searchParams }: PageProps) {
               title={post.title}
               slug={post.slug}
               meta={post.meta}
-              thumbnailUrl={post.thumbnailUrl}
             />
           </span>
         </div>
@@ -253,11 +255,12 @@ export default async function PostPage({ params, searchParams }: PageProps) {
 
         {/* Content: poems breathe in line by line; stories with scenes or
             glosses get the immersive reader */}
-        {isPoem && <PoemControls />}
+        {isPoem && <PoemControls initialStill={readMode === "still"} />}
         {/data-scene|data-gloss/.test(post.content) ? (
           <ImmersiveReader
             className={contentClasses}
             hasScenes={post.content.includes("data-scene")}
+            initialRead={readMode === "still" ? null : readMode}
           >
             {renderPostContent(post.content, { poem: isPoem })}
           </ImmersiveReader>

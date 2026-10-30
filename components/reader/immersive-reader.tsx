@@ -5,6 +5,8 @@ import { mapStory, type StoryMap } from "@/lib/reader/blocks";
 import { SceneSound, describeSound } from "@/lib/reader/sound";
 import { strokeStyle, washBackground } from "@/lib/reader/stage";
 import { WEEKDAYS, type Weekday } from "@/lib/scene-cues";
+import { type ReadMode, setReadParam } from "@/lib/reader/read-mode";
+import { FiSliders, FiX } from "react-icons/fi";
 import Motes from "./motes";
 import Glosses from "./glosses";
 import ScoreStrip from "./score-strip";
@@ -14,6 +16,8 @@ interface Props {
   className?: string;
   /** Known on the server, so the prompt is part of the first paint. */
   hasScenes: boolean;
+  /** Reading mode from the link (?read=), which skips the prompt. */
+  initialRead?: ReadMode | null;
   children: ReactNode;
 }
 
@@ -26,6 +30,13 @@ const SKIM_SPEED = 2.2;
 /** How long a new scene must hold the reading line before it plays. */
 const SETTLE_MS = 700;
 const MODE_KEY = "reader-mode";
+const DOCK_KEY = "reader-dock-open";
+
+function modeFromLink(read: ReadMode | null | undefined): Mode {
+  if (read === "plain") return "plain";
+  if (read === "sound" || read === "silence") return "immersive";
+  return "unset";
+}
 
 interface WashLayer {
   background: string;
@@ -59,6 +70,7 @@ function storeMode(mode: Mode | "sound") {
 export default function ImmersiveReader({
   className,
   hasScenes: hasScenesOnServer,
+  initialRead = null,
   children,
 }: Props) {
   const storyRef = useRef<HTMLDivElement>(null);
@@ -66,7 +78,11 @@ export default function ImmersiveReader({
   const soundRef = useRef<SceneSound | null>(null);
 
   const [map, setMap] = useState<StoryMap | null>(null);
-  const [mode, setMode] = useState<Mode>("unset");
+  // A mode from the link starts the reader without the prompt
+  const [mode, setMode] = useState<Mode>(() => modeFromLink(initialRead));
+  /** A ?read=sound link waits for one tap: browsers block sound until then. */
+  const [soundInvite, setSoundInvite] = useState(initialRead === "sound");
+  const [dockOpen, setDockOpen] = useState(false);
   const [scene, setScene] = useState<number | null>(null);
   const [activeBlock, setActiveBlock] = useState<Element | null>(null);
   const [skimming, setSkimming] = useState(false);
@@ -106,10 +122,16 @@ export default function ImmersiveReader({
     setMap(story);
     setReduceMotion(matchMedia("(prefers-reduced-motion: reduce)").matches);
     setToday(WEEKDAYS[new Date().getDay()]);
+    try {
+      setDockOpen(localStorage.getItem(DOCK_KEY) === "1");
+    } catch {
+      // Storage can be blocked; the dock just starts closed
+    }
     if (!story.scenes.length) return;
-    const stored = readStoredMode();
+    // The link's mode wins over the reader's remembered choice
+    const stored = modeFromLink(initialRead) === "unset" ? readStoredMode() : null;
     if (stored) setMode(stored === "plain" ? "plain" : "immersive");
-  }, []);
+  }, [initialRead]);
 
   useEffect(() => {
     return () => {
@@ -149,13 +171,34 @@ export default function ImmersiveReader({
     [map],
   );
 
-  // Reading line: the block crossing 40% down the screen
+  // Reading line: the block crossing 40% down the screen. Reading speed is
+  // measured here too, from how far apart crossed blocks sit and how fast
+  // they cross, so nothing reads the scroll position while scrolling (that
+  // forced a layout on every scroll event and stuttered on phones).
   useEffect(() => {
     if (!map?.blocks.length) return;
+    const tops = new Map<Element, number>();
+    const measure = new ResizeObserver(() => {
+      const offset = scrollY;
+      for (const b of map.blocks) tops.set(b, b.getBoundingClientRect().top + offset);
+    });
+    measure.observe(map.root);
+    let lastTop: number | null = null;
+    let lastAt = 0;
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
+          const top = tops.get(entry.target);
+          const now = performance.now();
+          if (top !== undefined && lastTop !== null) {
+            const v = Math.abs(top - lastTop) / Math.max(16, now - lastAt);
+            live.current.velocity = live.current.velocity * 0.6 + v * 0.4;
+          }
+          if (top !== undefined) {
+            lastTop = top;
+            lastAt = now;
+          }
           live.current.activeBlock = entry.target;
           setActiveBlock(entry.target);
           const s = map.sceneOf.get(entry.target);
@@ -170,21 +213,15 @@ export default function ImmersiveReader({
       { rootMargin: `-${READING_LINE * 100}% 0px -${99 - READING_LINE * 100}% 0px` },
     );
     map.blocks.forEach((b) => observer.observe(b));
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      measure.disconnect();
+    };
   }, [map]);
 
   // Skim detection, and settle into a new scene once reading slows
   useEffect(() => {
     if (!map?.scenes.length || mode === "unset") return;
-    let lastY = scrollY;
-    let lastT = performance.now();
-    const onScroll = () => {
-      const t = performance.now();
-      const v = Math.abs(scrollY - lastY) / Math.max(1, t - lastT);
-      live.current.velocity = live.current.velocity * 0.6 + v * 0.4;
-      lastY = scrollY;
-      lastT = t;
-    };
     const timer = setInterval(() => {
       const l = live.current;
       l.velocity *= 0.75;
@@ -196,11 +233,7 @@ export default function ImmersiveReader({
         applyScene(next, mode === "immersive");
       }
     }, 150);
-    addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      clearInterval(timer);
-      removeEventListener("scroll", onScroll);
-    };
+    return () => clearInterval(timer);
   }, [map, mode, applyScene]);
 
   // The site theme as it was before immersion took over
@@ -220,11 +253,36 @@ export default function ImmersiveReader({
     }
   }, []);
 
+  /**
+   * Scene colours change in one step, and a full-screen layer holding the
+   * old paper fades out on top. Fading the colour variables themselves
+   * restyled the whole page on every frame, which stuttered on phones.
+   */
+  const paperRef = useRef<HTMLDivElement>(null);
+  const shownPaper = useRef<string | null>(null);
+  const inkTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const fadeFromPaper = (color: string) => {
+    const el = paperRef.current;
+    if (!el) return;
+    el.style.transition = "none";
+    el.style.backgroundColor = color;
+    el.style.opacity = "1";
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        el.style.transition = "";
+        el.style.opacity = "0";
+      }),
+    );
+  };
+
   // Page colours: the scene's paper and ink replace the site's own colours
   useEffect(() => {
     const root = document.documentElement;
+    clearTimeout(inkTimer.current);
     if (!immersive || !cue) {
       restoreSite();
+      shownPaper.current = null;
       return;
     }
     // Theme variants (logo, prose) follow the scene, not the site setting
@@ -233,32 +291,52 @@ export default function ImmersiveReader({
       light: root.classList.contains("light"),
       scheme: root.style.colorScheme,
     };
-    const body = getComputedStyle(document.body);
-    const set = (name: string, cls: string, value: string | null, from: string) => {
-      if (!value) {
-        root.classList.remove(cls);
-        return;
-      }
-      if (!root.classList.contains(cls)) {
-        // Start from the site's current colour so the change fades in
-        root.style.setProperty(name, from);
-        root.classList.add(cls);
-        getComputedStyle(root).getPropertyValue(name);
-      }
-      root.style.setProperty(name, value);
-    };
-    set("--scene-bg", "reader-bg", cue.bg, body.backgroundColor);
-    set("--scene-ink", "reader-ink", cue.ink, body.color);
-    root.classList.toggle("reader-dark", cue.dark);
+    // Reading computed colours forces a restyle, so only on first takeover
+    const previous =
+      shownPaper.current ?? getComputedStyle(document.body).backgroundColor;
+    const wasDark = root.classList.contains("reader-dark");
+
     if (cue.bg) {
-      root.classList.toggle("dark", cue.dark);
-      root.classList.toggle("light", !cue.dark);
-      root.style.colorScheme = cue.dark ? "dark" : "light";
+      if (previous !== cue.bg) fadeFromPaper(previous);
+      root.style.setProperty("--scene-bg", cue.bg);
+      root.classList.add("reader-bg");
+      shownPaper.current = cue.bg;
+    } else {
+      root.classList.remove("reader-bg");
+      shownPaper.current = null;
     }
-  }, [immersive, cue, restoreSite]);
+
+    const applyInk = () => {
+      if (cue.ink) {
+        root.style.setProperty("--scene-ink", cue.ink);
+        root.classList.add("reader-ink");
+      } else {
+        root.classList.remove("reader-ink");
+      }
+      root.classList.toggle("reader-dark", cue.dark);
+      if (cue.bg) {
+        root.classList.toggle("dark", cue.dark);
+        root.classList.toggle("light", !cue.dark);
+        root.style.colorScheme = cue.dark ? "dark" : "light";
+      }
+    };
+    // Between day and night, switch the ink halfway through the fade, so the
+    // text stays readable against both the old and the new paper
+    if (cue.bg && wasDark !== cue.dark && shownPaper.current) {
+      inkTimer.current = setTimeout(applyInk, reduceMotion ? 250 : 1100);
+    } else {
+      applyInk();
+    }
+  }, [immersive, cue, restoreSite, reduceMotion]);
 
   // Leaving the page hands the site its own colours and theme back
-  useEffect(() => restoreSite, [restoreSite]);
+  useEffect(
+    () => () => {
+      clearTimeout(inkTimer.current);
+      restoreSite();
+    },
+    [restoreSite],
+  );
 
   /* ---------- sound ---------- */
 
@@ -311,6 +389,37 @@ export default function ImmersiveReader({
       applyScene(live.current.scene, true);
     }
   };
+
+  const acceptSoundInvite = () => {
+    setSoundInvite(false);
+    toggleSound(true);
+  };
+
+  const toggleDock = useCallback((open: boolean) => {
+    setDockOpen(open);
+    try {
+      localStorage.setItem(DOCK_KEY, open ? "1" : "0");
+    } catch {
+      // Storage can be blocked; the choice lasts for this visit
+    }
+  }, []);
+
+  // The address bar carries the current mode, so copying or sharing the link
+  // opens the story the same way
+  const linkMode: ReadMode | null =
+    mode === "unset" ? null : !immersive ? "plain" : soundOn || soundInvite ? "sound" : "silence";
+  useEffect(() => {
+    if (linkMode && scenes.length) setReadParam(linkMode);
+  }, [linkMode, scenes.length]);
+
+  useEffect(() => {
+    if (!dockOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") toggleDock(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [dockOpen, toggleDock]);
 
   /* ---------- render ---------- */
 
@@ -385,6 +494,7 @@ export default function ImmersiveReader({
 
       {hasScenes && (
         <div className="reader-layers" aria-hidden="true">
+          <div ref={paperRef} className="reader-layer reader-paper" />
           {wash.map((layer, i) => (
             <div
               key={i}
@@ -426,8 +536,51 @@ export default function ImmersiveReader({
         <ScoreStrip scenes={scenes} story={map.root} readingLine={READING_LINE} />
       )}
 
-      {started && (
-        <div className="reader-dock not-prose font-space-grotesk bg-background/85 text-foreground border border-border">
+      {started && immersive && soundInvite && !soundOn && (
+        <div className="reader-sound-invite not-prose font-space-grotesk bg-background text-foreground border border-border">
+          <button type="button" onClick={acceptSoundInvite} className="reader-sound-invite-on">
+            Turn on sound
+          </button>
+          <button
+            type="button"
+            onClick={() => setSoundInvite(false)}
+            aria-label="Read without sound"
+            className="reader-sound-invite-off"
+          >
+            <FiX />
+          </button>
+        </div>
+      )}
+
+      {started && !dockOpen && (
+        <button
+          type="button"
+          onClick={() => toggleDock(true)}
+          aria-expanded={false}
+          aria-controls="reader-dock"
+          title="Reading controls"
+          className="reader-dock-toggle not-prose bg-background text-foreground border border-border"
+        >
+          <FiSliders aria-hidden="true" />
+          <span className="sr-only">Reading controls</span>
+        </button>
+      )}
+
+      {started && dockOpen && (
+        <div
+          id="reader-dock"
+          role="region"
+          aria-label="Reading controls"
+          className="reader-dock not-prose font-space-grotesk bg-background/95 text-foreground border border-border"
+        >
+          <button
+            type="button"
+            onClick={() => toggleDock(false)}
+            aria-label="Hide reading controls"
+            className="reader-dock-close"
+          >
+            <FiX aria-hidden="true" />
+          </button>
           {showScore && cue && scene !== null && (
             <div className="reader-dock-scene">
               <span className="text-muted-foreground">

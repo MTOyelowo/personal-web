@@ -12,6 +12,7 @@
 
 .poem .poem-line {
   display: block;
+  transform-origin: left center;
 }
 
 /* Only lines that carry motion are hidden first; text is never stuck invisible */
@@ -41,16 +42,16 @@
   }
 }
 
+/* Opacity and transform only: both run on the compositor, so even long
+   poems scroll smoothly on phones */
 @keyframes poem-inhale-alone {
   from {
     opacity: 0;
-    filter: blur(3px);
-    letter-spacing: 0.12em;
+    transform: translateY(0.35em) scale(0.97);
   }
   to {
     opacity: 1;
-    filter: none;
-    letter-spacing: normal;
+    transform: none;
   }
 }
 

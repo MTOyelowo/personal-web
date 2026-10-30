@@ -22,7 +22,11 @@ export default function Motes({ on }: { on: boolean }) {
     const cx = canvas?.getContext("2d");
     if (!canvas || !cx) return;
 
-    const motes: Mote[] = Array.from({ length: 60 }, () => ({
+    // Soft dots need no more than 1.5x resolution; full phone resolution
+    // made every frame redraw millions of pixels
+    const dpr = Math.min(devicePixelRatio, 1.5);
+    const count = innerWidth < 640 ? 36 : 60;
+    const motes: Mote[] = Array.from({ length: count }, () => ({
       x: Math.random(),
       y: Math.random(),
       r: 0.7 + Math.random() * 1.7,
@@ -35,8 +39,8 @@ export default function Motes({ on }: { on: boolean }) {
     let raf = 0;
 
     const size = () => {
-      canvas.width = innerWidth * devicePixelRatio;
-      canvas.height = innerHeight * devicePixelRatio;
+      canvas.width = Math.round(innerWidth * dpr);
+      canvas.height = Math.round(innerHeight * dpr);
     };
     size();
     addEventListener("resize", size);
@@ -60,7 +64,7 @@ export default function Motes({ on }: { on: boolean }) {
         if (a <= 0) continue;
         cx.fillStyle = `rgba(150,112,52,${a.toFixed(3)})`;
         cx.beginPath();
-        cx.arc(p.x * W, p.y * H, p.r * devicePixelRatio, 0, 6.283);
+        cx.arc(p.x * W, p.y * H, p.r * dpr, 0, 6.283);
         cx.fill();
       }
       raf = requestAnimationFrame(frame);
