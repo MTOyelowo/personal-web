@@ -18,6 +18,7 @@ import { RiSuperscript, RiSubscript } from "react-icons/ri";
 import { getFocusedEditor } from "./editor-utils";
 import ToolbarButton from "./toolbar-button";
 import InsertLink from "./insert-link";
+import InsertGloss from "./insert-gloss";
 import EmbedYoutube from "./embed-youtube";
 import { BsImageFill } from "react-icons/bs";
 import { LinkOption } from "./link-form";
@@ -184,6 +185,7 @@ const Toolbar: FC<Props> = ({ editor, onOpenGallery }) => {
 
       {/* Links */}
       <InsertLink onSubmit={handleLinkSubmit} />
+      <InsertGloss editor={editor} />
 
       {/* Lists */}
       <ToolbarButton

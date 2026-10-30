@@ -13,6 +13,10 @@ import CollectionTray from "@/components/common/collection-tray";
 import RelatedPosts from "@/components/common/related-posts";
 import LikeButton from "@/components/common/like-button";
 import CommentSection from "@/components/common/comment-section";
+import ImmersiveReader from "@/components/reader/immersive-reader";
+
+const PROSE_CLASSES =
+  "prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -243,10 +247,17 @@ export default async function PostPage({ params, searchParams }: PageProps) {
           </div>
         )}
 
-        {/* Content */}
-        <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400">
-          {renderPostContent(post.content)}
-        </div>
+        {/* Content: stories with scenes or glosses get the immersive reader */}
+        {/data-scene|data-gloss/.test(post.content) ? (
+          <ImmersiveReader
+            className={PROSE_CLASSES}
+            hasScenes={post.content.includes("data-scene")}
+          >
+            {renderPostContent(post.content)}
+          </ImmersiveReader>
+        ) : (
+          <div className={PROSE_CLASSES}>{renderPostContent(post.content)}</div>
+        )}
 
         {/* Like */}
         <div className="ml-auto pt-10">

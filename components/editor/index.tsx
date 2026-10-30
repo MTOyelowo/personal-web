@@ -9,6 +9,7 @@ import Image from "@tiptap/extension-image";
 import Superscript from "@tiptap/extension-superscript";
 import Subscript from "@tiptap/extension-subscript";
 import { SceneDocument } from "./extensions/scene";
+import { Gloss } from "./extensions/gloss";
 import { EditorScene } from "./scene/scene-view";
 import Toolbar from "./toolbar";
 import EditLink from "./edit-link";
@@ -118,6 +119,7 @@ const Editor: FC<Props> = ({
       }),
       Superscript,
       Subscript,
+      Gloss,
     ],
     content: value,
     onUpdate: ({ editor }) => {

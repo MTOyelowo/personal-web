@@ -135,6 +135,12 @@ body {
   margin: 1.5rem 0;
 }
 
+.tiptap-editor [data-gloss] {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.24em;
+}
+
 /* Placeholder */
 .tiptap-editor p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);

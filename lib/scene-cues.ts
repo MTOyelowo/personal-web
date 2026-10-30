@@ -144,6 +144,28 @@ export function parseSound(
   return sound;
 }
 
+/** Reads a rendered <section data-scene>, validating every value again. */
+export function readSceneCue(element: HTMLElement): SceneCue {
+  const d = element.dataset;
+  return {
+    cue: toCueId(d.cue),
+    name: parseLabel(d.name),
+    time: parseLabel(d.time, 40),
+    bg: parseHex(d.bg),
+    ink: parseHex(d.ink),
+    dark: d.dark !== undefined && d.dark !== "false",
+    wash: parseWash(d.wash),
+    washOpacity: parseLevel(d.washOpacity),
+    stroke: parseHex(d.stroke),
+    canvasOpacity: parseLevel(d.canvasOpacity),
+    glow: parseHex(d.glow),
+    vignette: parseLevel(d.vignette),
+    bpm: parseBpm(d.bpm),
+    effects: parseEffects(d.effects),
+    sound: parseSound(d.sound),
+  };
+}
+
 export function serializeSound(
   sound: Partial<Record<SoundLayer, number>> | null | undefined,
 ): string | null {

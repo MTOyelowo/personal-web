@@ -4,6 +4,7 @@ import Image from "@tiptap/extension-image";
 import Superscript from "@tiptap/extension-superscript";
 import Subscript from "@tiptap/extension-subscript";
 import { Scene, SceneDocument } from "./extensions/scene";
+import { Gloss } from "./extensions/gloss";
 
 /**
  * Extensions for rendering stored post HTML read-only. Shared by the client
@@ -60,4 +61,5 @@ export const viewerExtensions = [
   }),
   Superscript,
   Subscript,
+  Gloss,
 ];
