@@ -14,6 +14,7 @@ import RelatedPosts from "@/components/common/related-posts";
 import LikeButton from "@/components/common/like-button";
 import CommentSection from "@/components/common/comment-section";
 import ImmersiveReader from "@/components/reader/immersive-reader";
+import PoemControls from "@/components/reader/poem-controls";
 
 const PROSE_CLASSES =
   "prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400";
@@ -140,6 +141,9 @@ export default async function PostPage({ params, searchParams }: PageProps) {
 
   if (!post) notFound();
 
+  const isPoem = post.category.slug === "poetry";
+  const contentClasses = isPoem ? `${PROSE_CLASSES} poem` : PROSE_CLASSES;
+
   // Determine if this post belongs to a collection
   const firstCollectionId = post.collectionItems[0]?.collection.id ?? null;
   const collectionData = firstCollectionId
@@ -247,16 +251,20 @@ export default async function PostPage({ params, searchParams }: PageProps) {
           </div>
         )}
 
-        {/* Content: stories with scenes or glosses get the immersive reader */}
+        {/* Content: poems breathe in line by line; stories with scenes or
+            glosses get the immersive reader */}
+        {isPoem && <PoemControls />}
         {/data-scene|data-gloss/.test(post.content) ? (
           <ImmersiveReader
-            className={PROSE_CLASSES}
+            className={contentClasses}
             hasScenes={post.content.includes("data-scene")}
           >
-            {renderPostContent(post.content)}
+            {renderPostContent(post.content, { poem: isPoem })}
           </ImmersiveReader>
         ) : (
-          <div className={PROSE_CLASSES}>{renderPostContent(post.content)}</div>
+          <div className={contentClasses}>
+            {renderPostContent(post.content, { poem: isPoem })}
+          </div>
         )}
 
         {/* Like */}
