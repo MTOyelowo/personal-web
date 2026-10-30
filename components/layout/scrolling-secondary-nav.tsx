@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useScrollDirection } from "@/hooks/common/useScrollDirection";
 
@@ -22,7 +22,10 @@ const typeStyles: Record<NavItem["type"], string> = {
 
 export default function ScrollingSecondaryNav() {
   const pathname = usePathname();
-  const { isVisible } = useScrollDirection({ threshold: 10, hideDelay: 3000 });
+  const { isVisible, isAtTop } = useScrollDirection({
+    threshold: 10,
+    hideDelay: 3000,
+  });
   const { data: items } = useQuery<NavItem[]>({
     queryKey: ["nav-items"],
     queryFn: async () => {
@@ -32,28 +35,21 @@ export default function ScrollingSecondaryNav() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number | null>(null);
-  const pausedRef = useRef(false);
+  const trackRef = useRef<HTMLDivElement>(null);
 
+  // The marquee is a CSS animation, which replaced a per-frame JavaScript
+  // loop that forced a layout every frame. Its duration keeps the old pace
+  // of 30px a second whatever the width.
   useEffect(() => {
-    const step = () => {
-      const el = scrollRef.current;
-      if (el && !pausedRef.current) {
-        el.scrollLeft += 0.5;
-        const halfWidth = el.scrollWidth / 2;
-        if (el.scrollLeft >= halfWidth) {
-          el.scrollLeft -= halfWidth;
-        }
-      }
-      animationRef.current = requestAnimationFrame(step);
-    };
-
-    animationRef.current = requestAnimationFrame(step);
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
-  }, []);
+    const track = trackRef.current;
+    if (!track) return;
+    const observer = new ResizeObserver(() => {
+      const seconds = Math.max(10, track.scrollWidth / 2 / 30);
+      track.style.setProperty("--marquee-duration", `${seconds}s`);
+    });
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, [items]);
 
   // Don't render on the about page — it has its own section nav
   if (pathname === "/about") return null;
@@ -68,22 +64,18 @@ export default function ScrollingSecondaryNav() {
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
       aria-label="Explore topics"
-      onMouseEnter={() => {
-        pausedRef.current = true;
-      }}
-      onMouseLeave={() => {
-        pausedRef.current = false;
-      }}
     >
       <div className="absolute left-0 top-0 bottom-0 w-12 bg-linear-to-r from-background to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-12 bg-linear-to-l from-background to-transparent z-10 pointer-events-none" />
 
-      <div
-        ref={scrollRef}
-        className="flex items-center gap-4 px-6 py-2 overflow-x-hidden whitespace-nowrap"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {displayItems.map((item, index) => (
+      <div className="nav-marquee overflow-x-hidden" style={{ scrollbarWidth: "none" }}>
+        {/* Drifts only at the top of the page. While reading further down,
+            a running animation made every scroll frame on phones stutter. */}
+        <div
+          ref={trackRef}
+          className={`nav-marquee-track flex w-max items-center gap-4 px-6 py-2 whitespace-nowrap${isAtTop ? "" : " is-paused"}`}
+        >
+          {displayItems.map((item, index) => (
           <Link
             key={`${item.href}-${index}`}
             href={item.href}
@@ -96,9 +88,10 @@ export default function ScrollingSecondaryNav() {
               ${typeStyles[item.type]}
             `}
           >
-            {item.label}
-          </Link>
-        ))}
+              {item.label}
+            </Link>
+          ))}
+        </div>
       </div>
     </nav>
   );

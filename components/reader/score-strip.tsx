@@ -25,9 +25,20 @@ export default function ScoreStrip({ scenes, story, readingLine }: Props) {
   const [segments, setSegments] = useState<Segment[]>([]);
   const markerRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
+  /** Measured on layout changes only, so scrolling never reads layout. */
+  const size = useRef({ doc: 1, strip: 0 });
+
+  // Moved with a transform, which never triggers layout
+  const placeMarker = useCallback(() => {
+    if (!markerRef.current) return;
+    const f = (scrollY + innerHeight * readingLine) / size.current.doc;
+    markerRef.current.style.transform = `translateY(${f * size.current.strip}px)`;
+  }, [readingLine]);
 
   const build = useCallback(() => {
     const H = document.documentElement.scrollHeight;
+    size.current = { doc: H, strip: stripRef.current?.clientHeight ?? 0 };
+    placeMarker();
     const absTop = (el: Element) => el.getBoundingClientRect().top + scrollY;
     const end = absTop(story) + story.offsetHeight;
     const strokes: string[] = [];
@@ -50,7 +61,7 @@ export default function ScoreStrip({ scenes, story, readingLine }: Props) {
         };
       }),
     );
-  }, [scenes, story]);
+  }, [scenes, story, placeMarker]);
 
   useLayoutEffect(() => {
     // Fires once on observe, which does the first build
@@ -65,23 +76,19 @@ export default function ScoreStrip({ scenes, story, readingLine }: Props) {
 
   useEffect(() => {
     let raf = 0;
-    const update = () => {
-      raf = 0;
-      const H = document.documentElement.scrollHeight;
-      if (markerRef.current) {
-        markerRef.current.style.top = pct((scrollY + innerHeight * readingLine) / H);
-      }
-    };
     const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
+      if (!raf)
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          placeMarker();
+        });
     };
-    update();
     addEventListener("scroll", onScroll, { passive: true });
     return () => {
       cancelAnimationFrame(raf);
       removeEventListener("scroll", onScroll);
     };
-  }, [readingLine]);
+  }, [placeMarker]);
 
   const jump = (e: React.MouseEvent) => {
     const r = stripRef.current!.getBoundingClientRect();

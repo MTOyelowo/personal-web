@@ -1,27 +1,9 @@
 /*
  * Immersive reader. Scene colours are set as --scene-bg and --scene-ink on
- * <html>; registering them lets the browser fade between scenes, and the
- * site's own colour variables follow, so the header, title and text all
- * change together.
+ * <html>, and the site's own colour variables follow, so the header, title
+ * and text all change together. The colours change in one step; the
+ * .reader-paper layer fades the old paper out on top (see the component).
  */
-@property --scene-bg {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #ffffff;
-}
-
-@property --scene-ink {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #171717;
-}
-
-html {
-  transition:
-    --scene-bg 2.6s ease,
-    --scene-ink 2.6s ease;
-}
-
 html.reader-bg {
   --background: var(--scene-bg);
   --card: var(--scene-bg);
@@ -42,6 +24,14 @@ html.reader-bg.reader-ink {
 
 html.reader-dark {
   color-scheme: dark;
+}
+
+/* The site fades body colours over 0.2s. Colour is inherited, so each frame
+   of that fade restyled every element of a long story; the reader fades
+   its own paper instead. */
+html.reader-bg body,
+html.reader-ink body {
+  transition: none;
 }
 
 /* Prose and blockquote colours are fixed by the theme; follow the scene instead */
@@ -176,6 +166,11 @@ html.reader-ink .reader-story blockquote {
   height: 100%;
 }
 
+.reader-paper {
+  opacity: 0;
+  transition: opacity 2.6s ease;
+}
+
 .reader-wash {
   inset: -6%;
   width: auto;
@@ -234,7 +229,9 @@ html.reader-ink .reader-story blockquote {
   width: min(100vw, calc(48rem + 260px));
   transform: translateX(-50%);
   background-color: color-mix(in srgb, var(--scene-bg) 74%, transparent);
-  transition: opacity 2.6s ease;
+  transition:
+    opacity 2.6s ease,
+    background-color 2.6s ease;
   -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%);
 }
@@ -270,8 +267,10 @@ html.reader-dark .reader-backdrop {
 
 .reader-marker {
   position: absolute;
+  top: 0;
   left: -5px;
   right: -5px;
+  will-change: transform;
   height: 2px;
   background: currentColor;
   border-radius: 2px;
@@ -280,18 +279,86 @@ html.reader-dark .reader-backdrop {
 
 /* ---------- dock ---------- */
 
+/* Closed by default: one quiet round button */
+.reader-dock-toggle {
+  position: fixed;
+  left: 14px;
+  bottom: 14px;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  font-size: 16px;
+  opacity: 0.7;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  transition: opacity 0.2s ease;
+}
+
+.reader-dock-toggle:hover,
+.reader-dock-toggle:focus-visible {
+  opacity: 1;
+}
+
+.reader-dock-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.reader-dock-close:hover,
+.reader-dock-close:focus-visible {
+  opacity: 1;
+}
+
+/* A ?read=sound link waits for one tap, since browsers block sound until then */
+.reader-sound-invite {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  z-index: 45;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 4px 4px 6px;
+  border-radius: 999px;
+  font-size: 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+
+.reader-sound-invite-on {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 500;
+  background: var(--foreground);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.reader-sound-invite-off {
+  padding: 8px;
+  border-radius: 999px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
 .reader-dock {
   position: fixed;
   left: 14px;
   bottom: 14px;
   z-index: 40;
   max-width: min(340px, calc(100vw - 100px));
-  padding: 9px 12px 10px;
+  padding: 9px 34px 10px 12px;
   border-radius: 12px;
   font-size: 12px;
   line-height: 1.5;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
 }
 
 .reader-dock-controls {
@@ -336,9 +403,7 @@ html.reader-dark .reader-backdrop {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    transition-duration: 0.5s;
-  }
+  .reader-paper,
   .reader-wash,
   .reader-strokes,
   .reader-vignette,

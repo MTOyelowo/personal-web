@@ -135,6 +135,32 @@ body {
   margin: 1.5rem 0;
 }
 
+/* ── Topics marquee: the track holds the items twice, so -50% loops seamlessly ── */
+.nav-marquee-track {
+  animation: nav-marquee var(--marquee-duration, 60s) linear infinite;
+}
+
+.nav-marquee:hover .nav-marquee-track,
+.nav-marquee:focus-within .nav-marquee-track,
+.nav-marquee-track.is-paused {
+  animation-play-state: paused;
+}
+
+@keyframes nav-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-marquee {
+    overflow-x: auto;
+  }
+  .nav-marquee-track {
+    animation: none;
+  }
+}
+
 /* ── Paragraph styles for stories (editor and posts) ── */
 :is(.prose, .tiptap-editor) p[data-variant="chant"] {
   font-style: italic;

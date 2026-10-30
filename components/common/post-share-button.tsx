@@ -8,41 +8,54 @@ import {
   FaFacebookF,
   FaLinkedinIn,
 } from "react-icons/fa6";
+import {
+  READ_PARAM,
+  type ReadMode,
+  describeReadMode,
+  parseReadMode,
+} from "@/lib/reader/read-mode";
 
 interface PostShareButtonProps {
   title: string;
   slug: string;
   meta?: string;
-  thumbnailUrl?: string | null;
 }
 
 const SITE_URL = "https://tmoyelowo.com";
+
+/** The current reading mode from the address bar, if the reader set one. */
+function currentReadMode(): ReadMode | null {
+  if (typeof window === "undefined") return null;
+  return parseReadMode(new URLSearchParams(window.location.search).get(READ_PARAM));
+}
 
 export default function PostShareButton({
   title,
   slug,
   meta,
-  thumbnailUrl,
 }: PostShareButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [readMode, setReadMode] = useState<ReadMode | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const postUrl = `${SITE_URL}/post/${slug}`;
+  const baseUrl = `${SITE_URL}/post/${slug}`;
+  // Shared links open the post the way it is being read now
+  const postUrl = readMode ? `${baseUrl}?${READ_PARAM}=${readMode}` : baseUrl;
   const shareText = meta || title;
 
-  // Close on outside click
+  // Close on outside tap or click
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: PointerEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     }
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("pointerdown", handleClickOutside);
     }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, [isOpen]);
 
   // Close on Escape
@@ -75,45 +88,41 @@ export default function PostShareButton({
     }
   }, [postUrl]);
 
-  const handleNativeShare = useCallback(async () => {
-    try {
-      const shareData: ShareData = { title, text: shareText, url: postUrl };
-
-      // Attempt to attach the thumbnail image to the share tray
-      if (thumbnailUrl) {
-        try {
-          const response = await fetch(thumbnailUrl);
-          const blob = await response.blob();
-          const ext = blob.type.split("/")[1] || "jpg";
-          const file = new File([blob], `thumbnail.${ext}`, {
-            type: blob.type,
-          });
-          const withFiles = { ...shareData, files: [file] };
-          if (navigator.canShare?.(withFiles)) {
-            shareData.files = [file];
-          }
-        } catch {
-          // Image fetch failed — share without the image
-        }
+  /**
+   * Opens the system share sheet straight from the tap. Phones only allow
+   * it right after a tap, so nothing may be awaited first; fetching the
+   * cover image here used to make the sheet fail, and attaching an image
+   * made apps like WhatsApp drop the link. Link previews still show the
+   * cover, from the page's metadata.
+   */
+  const handleNativeShare = useCallback(
+    (url: string) => {
+      const shareData: ShareData = { title, text: shareText, url };
+      if (navigator.canShare && !navigator.canShare(shareData)) {
+        setIsOpen(true);
+        return;
       }
-
-      await navigator.share(shareData);
-    } catch {
-      // User cancelled or share failed — just open the menu instead
-      setIsOpen(true);
-    }
-  }, [title, shareText, postUrl, thumbnailUrl]);
+      navigator.share(shareData).catch((error: unknown) => {
+        // Closing the sheet is a choice, not a failure
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setIsOpen(true);
+      });
+    },
+    [title, shareText],
+  );
 
   const handleToggle = useCallback(() => {
+    const mode = currentReadMode();
+    setReadMode(mode);
     if (
       typeof navigator !== "undefined" &&
       typeof navigator.share === "function"
     ) {
-      handleNativeShare();
+      handleNativeShare(mode ? `${baseUrl}?${READ_PARAM}=${mode}` : baseUrl);
     } else {
       setIsOpen((prev) => !prev);
     }
-  }, [handleNativeShare]);
+  }, [handleNativeShare, baseUrl]);
 
   const shareTargets = [
     {
@@ -191,6 +200,11 @@ export default function PostShareButton({
           "
           role="menu"
         >
+          {readMode && (
+            <p className="px-4 pb-2 mb-1 text-xs text-muted-foreground border-b border-border">
+              Opens {describeReadMode(readMode)}
+            </p>
+          )}
           {shareTargets.map(({ name, icon: Icon, onClick, className }) => (
             <button
               key={name}
