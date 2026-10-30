@@ -1,0 +1,352 @@
+/*
+ * Immersive reader. Scene colours are set as --scene-bg and --scene-ink on
+ * <html>; registering them lets the browser fade between scenes, and the
+ * site's own colour variables follow, so the header, title and text all
+ * change together.
+ */
+@property --scene-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff;
+}
+
+@property --scene-ink {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #171717;
+}
+
+html {
+  transition:
+    --scene-bg 2.6s ease,
+    --scene-ink 2.6s ease;
+}
+
+html.reader-bg {
+  --background: var(--scene-bg);
+  --card: var(--scene-bg);
+}
+
+html.reader-ink {
+  --foreground: var(--scene-ink);
+  --primary: var(--scene-ink);
+  --card-foreground: var(--scene-ink);
+}
+
+html.reader-bg.reader-ink {
+  --muted: color-mix(in srgb, var(--scene-ink) 6%, var(--scene-bg));
+  --muted-foreground: color-mix(in srgb, var(--scene-ink) 62%, var(--scene-bg));
+  --secondary: color-mix(in srgb, var(--scene-ink) 62%, var(--scene-bg));
+  --border: color-mix(in srgb, var(--scene-ink) 16%, var(--scene-bg));
+}
+
+html.reader-dark {
+  color-scheme: dark;
+}
+
+/* Prose and blockquote colours are fixed by the theme; follow the scene instead */
+html.reader-ink .reader-story {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quote-borders: var(--border);
+}
+
+html.reader-ink .reader-story blockquote {
+  color: color-mix(in srgb, var(--foreground) 78%, transparent);
+  border-color: var(--border);
+}
+
+/* Section breaks in a story read as a quiet row of dots */
+.reader-story hr {
+  border: 0;
+  height: auto;
+  margin: 2.8em 0;
+  text-align: center;
+  opacity: 0.45;
+}
+
+.reader-story hr::after {
+  content: "· · ·";
+  letter-spacing: 0.7em;
+  font-size: 15px;
+}
+
+/* ---------- glossed terms ---------- */
+
+.reader-story [data-gloss] {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.24em;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  cursor: help;
+  border-radius: 3px;
+}
+
+.reader-story [data-gloss]:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.reader-story [data-gloss]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.reader-notes {
+  display: none;
+}
+
+@media (min-width: 1320px) {
+  .reader-notes {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: calc(100% + 48px);
+    width: 220px;
+  }
+}
+
+.reader-note {
+  position: absolute;
+  left: 0;
+  width: 220px;
+  font: 400 13px/1.5 var(--font-space-grotesk), system-ui, sans-serif;
+  color: var(--foreground);
+  opacity: 0.3;
+  transition: opacity 0.9s ease;
+}
+
+.reader-note.on {
+  opacity: 0.9;
+}
+
+.reader-note.hl {
+  opacity: 1;
+}
+
+.reader-note b,
+.reader-sheet b {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.reader-sheet {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  max-width: 520px;
+  margin: 0 auto;
+  z-index: 60;
+  padding: 16px 18px 14px;
+  border-radius: 14px;
+  font: 400 14.5px/1.55 var(--font-space-grotesk), system-ui, sans-serif;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  outline: none;
+}
+
+.reader-sheet-close {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: underline;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+/* ---------- stage ---------- */
+
+.reader-layers {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.reader-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.reader-wash {
+  inset: -6%;
+  width: auto;
+  height: auto;
+  transition: opacity 3.2s ease;
+}
+
+.reader-strokes {
+  overflow: hidden;
+  transition: opacity 3s ease;
+}
+
+.reader-stroke {
+  position: absolute;
+  border-radius: 50%;
+  animation: reader-stroke-in 4.5s ease both;
+}
+
+.reader-stroke.pulse {
+  animation: reader-pulse 2.8s ease-in-out both;
+}
+
+@keyframes reader-stroke-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes reader-pulse {
+  0% {
+    opacity: 0.4;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.62;
+  }
+}
+
+.reader-vignette {
+  transition: opacity 3s ease;
+  background: radial-gradient(
+    ellipse 78% 72% at 50% 45%,
+    rgba(0, 0, 0, 0) 38%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+}
+
+/* Keeps the text column legible over the wash */
+.reader-backdrop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(100vw, calc(48rem + 260px));
+  transform: translateX(-50%);
+  background-color: color-mix(in srgb, var(--scene-bg) 74%, transparent);
+  transition: opacity 2.6s ease;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%);
+}
+
+html.reader-dark .reader-backdrop {
+  background-color: color-mix(in srgb, var(--scene-bg) 60%, transparent);
+}
+
+/* ---------- score strip ---------- */
+
+.reader-strip {
+  position: fixed;
+  right: 10px;
+  top: 80px;
+  bottom: 96px;
+  width: 8px;
+  z-index: 30;
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+.reader-seg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 2px;
+}
+
+.reader-seg.silent {
+  box-shadow: inset 0 0 0 1px currentColor;
+  opacity: 0.4;
+}
+
+.reader-marker {
+  position: absolute;
+  left: -5px;
+  right: -5px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* ---------- dock ---------- */
+
+.reader-dock {
+  position: fixed;
+  left: 14px;
+  bottom: 14px;
+  z-index: 40;
+  max-width: min(340px, calc(100vw - 100px));
+  padding: 9px 12px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.reader-dock-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.reader-dock-controls button {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  cursor: pointer;
+}
+
+.reader-dock-controls button[aria-pressed="true"] {
+  background: color-mix(in srgb, currentColor 13%, transparent);
+}
+
+.reader-dock-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.reader-dock-controls button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.reader-dock-controls input[type="range"] {
+  width: 76px;
+  accent-color: currentColor;
+}
+
+@media (max-width: 640px) {
+  .reader-strip {
+    right: 5px;
+    width: 5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition-duration: 0.5s;
+  }
+  .reader-wash,
+  .reader-strokes,
+  .reader-vignette,
+  .reader-backdrop {
+    transition-duration: 0.5s;
+  }
+  .reader-stroke,
+  .reader-stroke.pulse {
+    animation: reader-stroke-in 0.5s ease both;
+  }
+}

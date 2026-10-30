@@ -12,14 +12,20 @@ import {
   BsBlockquoteLeft,
   BsCode,
   BsCodeSquare,
+  BsFilm,
 } from "react-icons/bs";
 import { RiSuperscript, RiSubscript } from "react-icons/ri";
 import { getFocusedEditor } from "./editor-utils";
 import ToolbarButton from "./toolbar-button";
 import InsertLink from "./insert-link";
+import InsertGloss from "./insert-gloss";
 import EmbedYoutube from "./embed-youtube";
 import { BsImageFill } from "react-icons/bs";
 import { LinkOption } from "./link-form";
+import {
+  PARAGRAPH_VARIANTS,
+  parseVariant,
+} from "./extensions/paragraph-variant";
 
 interface Props {
   editor: Editor | null;
@@ -68,6 +74,20 @@ const Toolbar: FC<Props> = ({ editor, onOpenGallery }) => {
     editor.commands.setYoutubeVideo({ src: url });
   };
 
+  const handleSceneToggle = () => {
+    if (editor.isActive("scene")) {
+      getFocusedEditor(editor).unsetScene().run();
+      return;
+    }
+    let scenes = 0;
+    editor.state.doc.forEach((node) => {
+      if (node.type.name === "scene") scenes++;
+    });
+    getFocusedEditor(editor)
+      .setScene({ cue: `scene-${scenes + 1}` })
+      .run();
+  };
+
   return (
     <div className="flex items-center flex-wrap gap-0.5 px-3 py-2 border-b border-gray-200 bg-gray-50">
       {/* Heading Dropdown */}
@@ -78,6 +98,26 @@ const Toolbar: FC<Props> = ({ editor, onOpenGallery }) => {
       >
         {headingOptions.map(({ label, value }) => (
           <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+
+      {/* Paragraph style */}
+      <select
+        value={editor.getAttributes("paragraph").variant ?? ""}
+        disabled={!editor.isActive("paragraph")}
+        onChange={(e) =>
+          getFocusedEditor(editor)
+            .setParagraphVariant(parseVariant(e.target.value))
+            .run()
+        }
+        title="Paragraph style"
+        className="text-sm border border-gray-200 rounded-md px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 mr-1 cursor-pointer disabled:opacity-40"
+      >
+        <option value="">Normal</option>
+        {PARAGRAPH_VARIANTS.map(({ id, label }) => (
+          <option key={id} value={id}>
             {label}
           </option>
         ))}
@@ -153,11 +193,23 @@ const Toolbar: FC<Props> = ({ editor, onOpenGallery }) => {
       >
         <BsCodeSquare />
       </ToolbarButton>
+      <ToolbarButton
+        active={editor.isActive("scene")}
+        onClick={handleSceneToggle}
+        title={
+          editor.isActive("scene")
+            ? "Remove scene"
+            : "Scene: wrap the selected paragraphs"
+        }
+      >
+        <BsFilm />
+      </ToolbarButton>
 
       <Divider />
 
       {/* Links */}
       <InsertLink onSubmit={handleLinkSubmit} />
+      <InsertGloss editor={editor} />
 
       {/* Lists */}
       <ToolbarButton

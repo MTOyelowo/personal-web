@@ -1,0 +1,67 @@
+import StarterKit from "@tiptap/starter-kit";
+import Youtube from "@tiptap/extension-youtube";
+import Image from "@tiptap/extension-image";
+import Superscript from "@tiptap/extension-superscript";
+import Subscript from "@tiptap/extension-subscript";
+import { Scene, SceneDocument } from "./extensions/scene";
+import { Gloss } from "./extensions/gloss";
+import { ParagraphVariant } from "./extensions/paragraph-variant";
+
+/**
+ * Extensions for rendering stored post HTML read-only. Shared by the client
+ * viewer and the server renderer so both produce the same markup.
+ * StarterKit v3 already bundles Link and Underline, so they are configured here.
+ */
+export const viewerExtensions = [
+  SceneDocument,
+  Scene,
+  StarterKit.configure({
+    document: false,
+    bulletList: { HTMLAttributes: { class: "list-disc ml-4" } },
+    orderedList: { HTMLAttributes: { class: "list-decimal ml-4" } },
+    code: {
+      HTMLAttributes: {
+        class:
+          "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded px-1.5 py-0.5 text-sm font-mono",
+      },
+    },
+    codeBlock: {
+      HTMLAttributes: {
+        class:
+          "bg-gray-900 text-gray-100 rounded-lg p-4 text-sm font-mono my-3 overflow-x-auto",
+      },
+    },
+    blockquote: {
+      HTMLAttributes: {
+        class:
+          "border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 my-3",
+      },
+    },
+    heading: {
+      HTMLAttributes: { class: "font-bold" },
+    },
+    link: {
+      openOnClick: true,
+      HTMLAttributes: {
+        class:
+          "text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300",
+        target: "_blank",
+        rel: "noopener noreferrer",
+      },
+    },
+  }),
+  Youtube.configure({
+    HTMLAttributes: {
+      class: "aspect-video w-full rounded-lg my-3",
+    },
+  }),
+  Image.configure({
+    HTMLAttributes: {
+      class: "mx-auto rounded-lg my-3 max-w-full",
+    },
+  }),
+  Superscript,
+  Subscript,
+  Gloss,
+  ParagraphVariant,
+];
