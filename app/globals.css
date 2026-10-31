@@ -161,6 +161,20 @@ body {
   }
 }
 
+/* ── Section breaks written as a row of asterisks or dashes ── */
+.prose hr.story-break {
+  border: 0;
+  height: auto;
+  margin: 2.6em 0;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.prose hr.story-break::after {
+  content: "* * *";
+  letter-spacing: 0.6em;
+}
+
 /* ── Paragraph styles for stories (editor and posts) ── */
 :is(.prose, .tiptap-editor) p[data-variant="chant"] {
   font-style: italic;

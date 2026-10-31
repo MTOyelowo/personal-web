@@ -50,6 +50,8 @@ export default function Motes({ on }: { on: boolean }) {
       cx.clearRect(0, 0, canvas.width, canvas.height);
       if (level < 0.004 && targetRef.current === 0) {
         running = false;
+        // A hidden canvas is not a layer the phone has to blend every frame
+        canvas.style.display = "none";
         return;
       }
       const { width: W, height: H } = canvas;
@@ -73,6 +75,7 @@ export default function Motes({ on }: { on: boolean }) {
     startRef.current = () => {
       if (!running && (targetRef.current > 0 || level > 0.004)) {
         running = true;
+        canvas.style.display = "";
         raf = requestAnimationFrame(frame);
       }
     };
@@ -89,5 +92,12 @@ export default function Motes({ on }: { on: boolean }) {
     startRef.current();
   }, [on]);
 
-  return <canvas ref={canvasRef} className="reader-layer" aria-hidden="true" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="reader-layer"
+      style={{ display: "none" }}
+      aria-hidden="true"
+    />
+  );
 }

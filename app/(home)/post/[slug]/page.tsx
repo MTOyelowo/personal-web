@@ -17,8 +17,10 @@ import ImmersiveReader from "@/components/reader/immersive-reader";
 import PoemControls from "@/components/reader/poem-controls";
 import { READ_PARAM, parseReadMode } from "@/lib/reader/read-mode";
 
+// wrap-break-word: long words and links wrap instead of widening the page
+// (the old client-side viewer got this from TipTap's editor styles)
 const PROSE_CLASSES =
-  "prose prose-lg dark:prose-invert max-w-none prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400";
+  "prose prose-lg dark:prose-invert max-w-none wrap-break-word prose-headings:font-libre prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-blue-600 dark:prose-a:text-blue-400";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 

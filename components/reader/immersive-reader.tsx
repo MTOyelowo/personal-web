@@ -268,12 +268,20 @@ export default function ImmersiveReader({
     el.style.transition = "none";
     el.style.backgroundColor = color;
     el.style.opacity = "1";
+    el.style.display = "block";
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         el.style.transition = "";
         el.style.opacity = "0";
       }),
     );
+  };
+
+  // Once faded, the layer leaves the page, so phones stop blending it
+  const hidePaper = (e: React.TransitionEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && e.currentTarget.style.opacity === "0") {
+      e.currentTarget.style.display = "none";
+    }
   };
 
   // Page colours: the scene's paper and ink replace the site's own colours
@@ -494,15 +502,21 @@ export default function ImmersiveReader({
 
       {hasScenes && (
         <div className="reader-layers" aria-hidden="true">
-          <div ref={paperRef} className="reader-layer reader-paper" />
+          <div
+            ref={paperRef}
+            className="reader-layer reader-paper"
+            onTransitionEnd={hidePaper}
+          />
           {wash.map((layer, i) => (
             <div
               key={i}
               className="reader-layer reader-wash"
-              style={{
-                background: layer.background,
-                opacity: immersive ? layer.opacity : 0,
-              }}
+              style={
+                {
+                  background: layer.background,
+                  "--wash-opacity": immersive ? layer.opacity : 0,
+                } as React.CSSProperties
+              }
             />
           ))}
           <div
